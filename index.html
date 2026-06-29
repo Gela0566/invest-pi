@@ -4,12 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invest Pi</title>
-    <!-- Chargement du SDK Pi Network -->
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
 </head>
 <body style="font-family: Arial, sans-serif; text-align: center; padding-top: 50px;">
     <h1 style="color: #6200ee;">Invest Pi 🚀</h1>
-    <p>L'application est officiellement en ligne et prête.</p>
+    <p>Système de paiement optimisé.</p>
 
     <button id="pay-btn" style="padding: 15px 30px; background-color: #6200ee; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">
         Faire un paiement Testnet
@@ -23,22 +22,27 @@
             try {
                 const scopes = ['username', 'payments'];
                 
-                // Cette fonction intercepte et résout automatiquement les paiements bloqués
+                // Gestionnaire intelligent des blocs de paiement
                 function onIncompletePaymentFound(payment) {
-                    alert("Ancien paiement suspendu détecté. Tentative de déblocage automatique...");
-                    if (payment.transaction && payment.transaction.txid) {
-                        fetch('https://invest-pi-gamma.vercel.app/api/complete', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ paymentId: payment.identifier, txid: payment.transaction.txid })
-                        })
-                        .then(res => res.json())
-                        .then(data => {
-                            alert("Ancien paiement validé et débloqué avec succès ! Vous pouvez maintenant rejouer.");
-                            window.location.reload();
-                        })
-                        .catch(err => alert("Erreur lors du déblocage : " + err.message));
-                    }
+                    alert("Paiement suspendu détecté. Nettoyage en cours...");
+                    
+                    const hasTxid = payment.transaction && payment.transaction.txid;
+                    const endpoint = hasTxid ? '/api/complete' : '/api/cancel';
+                    const bodyData = hasTxid 
+                        ? { paymentId: payment.identifier, txid: payment.transaction.txid }
+                        : { paymentId: payment.identifier };
+
+                    fetch('https://invest-pi-gamma.vercel.app' + endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(bodyData)
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        alert("Le blocage a été résolu avec succès ! La page va s'actualiser.");
+                        window.location.reload();
+                    })
+                    .catch(err => alert("Erreur de nettoyage : " + err.message));
                 }
 
                 const auth = await Pi.authenticate(scopes, onIncompletePaymentFound);
@@ -65,12 +69,9 @@
                                 alert("Erreur d'approbation : " + JSON.stringify(data.error));
                             }
                         })
-                        .catch(error => {
-                            alert("Erreur réseau backend : " + error.message);
-                        });
+                        .catch(error => alert("Erreur réseau backend : " + error.message));
                     },
                     onReadyForServerCompletion: (paymentId, txid) => {
-                        // Appel de notre nouvelle API pour finaliser proprement le paiement
                         fetch('https://invest-pi-gamma.vercel.app/api/complete', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -84,9 +85,7 @@
                                 alert("Erreur lors de la complétion : " + JSON.stringify(data.error));
                             }
                         })
-                        .catch(error => {
-                            alert("Erreur réseau complétion : " + error.message);
-                        });
+                        .catch(error => alert("Erreur réseau complétion : " + error.message));
                     },
                     onCancel: (paymentId) => {
                         alert("Paiement annulé.");
