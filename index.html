@@ -23,8 +23,22 @@
             try {
                 const scopes = ['username', 'payments'];
                 
+                // Cette fonction intercepte et résout automatiquement les paiements bloqués
                 function onIncompletePaymentFound(payment) {
-                    console.log("Paiement incomplet trouvé", payment);
+                    alert("Ancien paiement suspendu détecté. Tentative de déblocage automatique...");
+                    if (payment.transaction && payment.transaction.txid) {
+                        fetch('https://invest-pi-gamma.vercel.app/api/complete', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ paymentId: payment.identifier, txid: payment.transaction.txid })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            alert("Ancien paiement validé et débloqué avec succès ! Vous pouvez maintenant rejouer.");
+                            window.location.reload();
+                        })
+                        .catch(err => alert("Erreur lors du déblocage : " + err.message));
+                    }
                 }
 
                 const auth = await Pi.authenticate(scopes, onIncompletePaymentFound);
@@ -38,12 +52,9 @@
 
                 const callbacks = {
                     onReadyForServerApproval: (paymentId) => {
-                        // Liaison directe avec votre API Vercel fraîchement créée !
                         fetch('https://invest-pi-gamma.vercel.app/api/approve', {
                             method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
+                            headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ paymentId: paymentId })
                         })
                         .then(response => response.json())
@@ -59,7 +70,23 @@
                         });
                     },
                     onReadyForServerCompletion: (paymentId, txid) => {
-                        alert("Transaction réussie ! TXID : " + txid);
+                        // Appel de notre nouvelle API pour finaliser proprement le paiement
+                        fetch('https://invest-pi-gamma.vercel.app/api/complete', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ paymentId: paymentId, txid: txid })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert("Transaction réussie et totalement finalisée !");
+                            } else {
+                                alert("Erreur lors de la complétion : " + JSON.stringify(data.error));
+                            }
+                        })
+                        .catch(error => {
+                            alert("Erreur réseau complétion : " + error.message);
+                        });
                     },
                     onCancel: (paymentId) => {
                         alert("Paiement annulé.");
@@ -72,7 +99,7 @@
                 await Pi.createPayment(paymentData, callbacks);
 
             } catch (error) {
-                alert("Erreur SDK Pi : " + error.message);
+                alert("Erreur : " + error.message);
             }
         });
     </script>
