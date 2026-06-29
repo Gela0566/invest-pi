@@ -7,11 +7,11 @@
     <!-- Chargement du SDK Pi Network -->
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
 </head>
-<body style="font-family: Arial, sans-serif; text-align: center; background-color: #f4f4f9; padding: 50px 20px;">
+<body style="font-family: Arial, sans-serif; text-align: center; padding-top: 50px;">
     <h1 style="color: #6200ee;">Invest Pi 🚀</h1>
-    <p>L'application est officiellement en ligne et prête pour le Testnet.</p>
-    
-    <button id="pay-btn" style="padding: 15px 30px; background-color: #6200ee; color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; margin-top: 20px; cursor: pointer;">
+    <p>L'application est officiellement en ligne et prête.</p>
+
+    <button id="pay-btn" style="padding: 15px 30px; background-color: #6200ee; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">
         Faire un paiement Testnet
     </button>
 
@@ -22,10 +22,11 @@
         document.getElementById('pay-btn').addEventListener('click', async () => {
             try {
                 const scopes = ['username', 'payments'];
-                function onIncompletePaymentFound(payment) {
-                    console.log("Paiement incomplet :", payment);
-                }
                 
+                function onIncompletePaymentFound(payment) {
+                    console.log("Paiement incomplet trouvé", payment);
+                }
+
                 const auth = await Pi.authenticate(scopes, onIncompletePaymentFound);
                 alert("Connecté : " + auth.user.username);
 
@@ -37,7 +38,25 @@
 
                 const callbacks = {
                     onReadyForServerApproval: (paymentId) => {
-                        alert("Paiement généré ! ID : " + paymentId);
+                        // Liaison directe avec votre API Vercel fraîchement créée !
+                        fetch('https://invest-pi-gamma.vercel.app/api/approve', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ paymentId: paymentId })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert("Paiement approuvé par le serveur !");
+                            } else {
+                                alert("Erreur d'approbation : " + JSON.stringify(data.error));
+                            }
+                        })
+                        .catch(error => {
+                            alert("Erreur réseau backend : " + error.message);
+                        });
                     },
                     onReadyForServerCompletion: (paymentId, txid) => {
                         alert("Transaction réussie ! TXID : " + txid);
