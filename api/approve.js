@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -20,21 +18,25 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'paymentId manquant.' });
         }
 
-        // ⚠️ REMPLACEZ LES XXXXX PAR VOTRE CLÉ RÉCUPÉRÉE SUR DEVELOP.PI SI CE N'EST PAS FAIT
-        const Pi_Server_API_Key = "2apaxmjbuiy41p43cy6vxwhrprhkerpygtxizpfaqe1ju8idwq0xfagho5jxr2dh"; 
+        // ⚠️ ATTENTION : Remplacez les XXXXX ci-dessous par votre vraie clé Server API Key de develop.pi
+        const Pi_Server_API_Key = "e9wlfdwyhfyrfjryvxpjjdnuvmzuvbjpmzdylx0cqtft8pdofocuauq91ekza3ih"; 
 
-        const response = await axios.post(
-            `https://api.minepi.com/v2/payments/${paymentId}/approve`,
-            {},
-            {
-                headers: {
-                    Authorization: `Key ${Pi_Server_API_Key}`,
-                    'Content-Type': 'application/json'
-                }
-            }
-        );
+        const response = await fetch(`https://api.minepi.com/v2/payments/${paymentId}/approve`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Key ${Pi_Server_API_Key}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        });
 
-        return res.status(200).json({ success: true, message: 'Approuvé !', data: response.data });
+        const data = await response.json();
+
+        if (!response.ok) {
+            return res.status(response.status).json({ error: 'Erreur Pi API', details: data });
+        }
+
+        return res.status(200).json({ success: true, message: 'Approuvé !', data: data });
 
     } catch (error) {
         return res.status(500).json({ error: 'Erreur approbation', details: error.message });
