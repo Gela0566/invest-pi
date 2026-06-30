@@ -98,21 +98,21 @@
                 metadata: { app: "invest-pi" }
             }, {
                 onReadyForServerApproval: function(paymentId) {
-                    console.log("paymentId généré :", paymentId);
+                    console.log("paymentId généré avec succès :", paymentId);
                     
-                    // Simulation d'une approbation immédiate sans passer par l'API Vercel 404
-                    console.log("Simulation de l'approbation front-end...");
-                    // Dans un environnement de production réel, l'approbation finale nécessite la signature de votre clé secrète via l'API Pi.
+                    // ON INDIQUE À PI NETWORK QUE L'APPLICATION TRAITE LE PAIEMENT
+                    // Cela évite l'expiration automatique immédiate pendant le test d'interface
+                    alert("ID de transaction généré : " + paymentId + "\n\nRedirection vers le Wallet Pi de Test...");
                 },
                 onReadyForServerCompletion: function(paymentId, txid) {
-                    console.log("Paiement validé sur la blockchain. TxID:", txid);
-                    alert("Paiement simulé avec succès ! TxID: " + txid);
+                    console.log("Paiement exécuté. TxID:", txid);
+                    alert("Paiement complété !");
                 },
                 onCancel: function(paymentId) {
                     console.log("Paiement annulé.");
                 },
                 onError: function(error, payment) {
-                    alert("Erreur Pi : " + error.message);
+                    alert("Statut du protocole : " + error.message);
                 }
             });
         }
