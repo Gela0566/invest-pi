@@ -51,7 +51,6 @@
             background-color: #450bc4;
         }
     </style>
-    <!-- Chargement du SDK Pi officiel -->
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
 </head>
 <body>
@@ -59,31 +58,51 @@
     <div class="container">
         <h1>Invest Pi 🚀</h1>
         <p>Système de paiement optimisé.</p>
-        <button onclick="launchPiPayment()">Faire un paiement Testnet</button>
+        <button onclick="startPaymentFlow()">Faire un paiement Testnet</button>
     </div>
 
     <script>
         const BACKEND_URL = "https://invest-pi.vercel.app/api/pay";
 
-        // Initialisation automatique du SDK dès le chargement
         window.onload = function() {
             if (typeof Pi !== 'undefined') {
-                Pi.init({ version: "2.0", sandbox: true });
-                // Authentification silencieuse pour l'accès aux paiements
-                Pi.authenticate(['username', 'payments'], function(payment) {
-                    console.log("Paiement incomplet trouvé :", payment);
-                }).catch(function(err) {
-                    console.error("Erreur d'authentification initiale:", err);
-                });
+                try {
+                    Pi.init({ version: "2.0", sandbox: true });
+                } catch (e) {
+                    console.error("Erreur init automatique:", e);
+                }
             }
         };
 
-        function launchPiPayment() {
+        // Étape 1 : On force l'authentification avec les scopes requis au clic
+        async function startPaymentFlow() {
             if (typeof Pi === 'undefined') {
-                alert("Le SDK Pi n'est pas prêt.");
+                alert("Le SDK Pi n'est pas chargé.");
                 return;
             }
 
+            try {
+                // Demande explicite des scopes 'username' et 'payments'
+                const authResult = await Pi.authenticate(['username', 'payments'], onIncompletePaymentFound);
+                
+                if (authResult && authResult.user) {
+                    console.log("Authentification réussie pour :", authResult.user.username);
+                    // Étape 2 : Une fois authentifié avec le scope, on lance le paiement
+                    launchPiPayment();
+                } else {
+                    alert("Impossible d'obtenir les autorisations de paiement.");
+                }
+            } catch (err) {
+                alert("Erreur d'authentification : " + (err.message || JSON.stringify(err)));
+            }
+        }
+
+        function onIncompletePaymentFound(payment) {
+            console.log("Paiement incomplet détecté :", payment);
+        }
+
+        // Étape 3 : Création du paiement de 1.0 Test-Pi
+        function launchPiPayment() {
             try {
                 Pi.createPayment({
                     amount: 1.0,
@@ -97,7 +116,7 @@
                             body: JSON.stringify({ action: 'approve', paymentId: paymentId })
                         })
                         .then(res => res.json())
-                        .then(data => console.log("Approuvé par le serveur"))
+                        .then(data => console.log("Paiement approuvé par le serveur."))
                         .catch(err => console.error("Erreur approbation:", err));
                     },
                     onReadyForServerCompletion: function(paymentId, txid) {
@@ -113,14 +132,14 @@
                         .catch(err => console.error("Erreur finalisation:", err));
                     },
                     onCancel: function(paymentId) {
-                        console.log("Paiement annulé.");
+                        console.log("Paiement annulé par l'utilisateur.");
                     },
                     onError: function(error, payment) {
                         alert("Erreur de paiement : " + error.message);
                     }
                 });
             } catch (err) {
-                alert("Erreur système : " + err.message);
+                alert("Erreur système lors du paiement : " + err.message);
             }
         }
     </script>
