@@ -1,7 +1,7 @@
 // api/pay.js
 // Utilisation du fetch natif pour éviter les installations de modules manquants
 
-const PI_API_KEY = "METS_TA_SERVER_API_KEY_ICI"; // Ta clé du Developer Portal
+const PI_API_KEY = "mkjwlwlniw0wqvmhmmvca1ghaq8opb5zqnrusrf94iuqqmpa5mok48ntxsk58ald"; // Ta clé du Developer Portal
 const PI_API_URL = "https://api.minepi.com/v2";
 
 export default async function handler(req, res) {
