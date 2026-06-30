@@ -32,6 +32,9 @@
             padding: 20px;
             text-align: center;
             box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .logo-container {
@@ -105,6 +108,7 @@
         .offer-card h2 {
             margin-top: 0;
             font-size: 20px;
+            color: var(--text-light);
         }
 
         .offer-card p {
@@ -126,8 +130,6 @@
             margin-top: 15px;
             box-shadow: 0 4px 10px rgba(98, 33, 129, 0.3);
             display: block;
-            outline: none;
-            -webkit-tap-highlight-color: transparent;
         }
 
         .btn-payment:active {
@@ -155,8 +157,6 @@
             list-style: none;
             padding: 0;
             margin: 0;
-            max-height: 150px;
-            overflow-y: auto;
         }
 
         .transaction-item {
@@ -185,7 +185,6 @@
             text-align: center;
         }
     </style>
-
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
 </head>
 <body>
@@ -236,14 +235,15 @@
     </footer>
 
     <script>
-        // Initialisation forcée du SDK en mode Sandbox
+        // Initialisation forcée du SDK Pi
         try {
             Pi.init({ version: "2.0", sandbox: true });
+            console.log("SDK Pi initialisé avec succès.");
         } catch(e) {
             console.error("Erreur d'initialisation du SDK:", e);
         }
 
-        let currentBalance = 100.0023;
+        let currentBalance = 100.0035;
 
         function startLiveYield() {
             const balanceElement = document.getElementById('live-balance');
@@ -263,12 +263,12 @@
                     document.getElementById('username-display').innerText = "Bienvenue @" + authResult.user.username;
                 }
             } catch (error) {
-                console.log("Authentification en attente du clic de paiement.");
+                console.log("Authentification transparente en cours...");
             }
         }
 
         function onIncompletePaymentFound(payment) {
-            console.log("Paiement incomplet détecté :", payment);
+            console.log("Paiement incomplet trouvé :", payment);
         }
 
         function addTransactionToHistory(amount, memo) {
@@ -301,33 +301,32 @@
             authUser();
         };
 
-        // EXÉCUTION DIRECTE DU PAIEMENT AU CLIC
+        // FONCTION DE PAIEMENT SÉCURISÉE ET DIRECTE
         function launchPiPayment() {
-            console.log("Bouton cliqué : lancement de la demande de paiement...");
-            
+            console.log("Bouton cliqué : ouverture du portefeuille de test...");
             try {
                 Pi.createPayment({
                     amount: 1.0,
                     memo: "Dépôt Fonds Gelase",
-                    metadata: { investor: "Gelase Fund" },
+                    metadata: { wallet: "Testnet Gelase" },
                 }, {
                     onReadyForServerApproval: function(paymentId) {
-                        console.log("Paiement prêt pour approbation :", paymentId);
+                        console.log("Paiement approuvé par le client ID :", paymentId);
                     },
                     onReadyForServerCompletion: function(paymentId, txid) {
-                        console.log("Simulation réussie ! TXID :", txid);
+                        console.log("Paiement complété ! TXID :", txid);
                         addTransactionToHistory(1.0, "Dépôt Fonds Gelase");
                     },
                     onCancel: function(paymentId) {
-                        console.log("Transaction annulée.");
+                        console.log("Paiement annulé par l'utilisateur.");
                     },
                     onError: function(error, payment) {
-                        console.error("Erreur détectée :", error);
-                        alert("Veuillez tester ce bouton directement depuis l'adresse de votre application dans le Pi Browser pour ouvrir votre portefeuille.");
+                        console.error("Erreur de paiement :", error);
+                        alert("Note : Pour exécuter le module de paiement blockchain, l'application doit impérativement être ouverte depuis l'URL de votre Pi Browser.");
                     }
                 });
             } catch (err) {
-                console.error("Le SDK n'a pas pu s'exécuter :", err);
+                console.error("Le SDK Pi n'est pas prêt :", err);
             }
         }
     </script>
