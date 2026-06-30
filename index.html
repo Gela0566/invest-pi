@@ -126,6 +126,8 @@
             margin-top: 15px;
             box-shadow: 0 4px 10px rgba(98, 33, 129, 0.3);
             display: block;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .btn-payment:active {
@@ -210,7 +212,7 @@
 
     <main class="main-content">
         <div class="offer-card">
-            <h2>Pool d'Investissement Alpha</h2>
+            <h2>Pool d'Investissement Gelase</h2>
             <p>Participez à la simulation de notre premier fonds de liquidité décentralisé. Validez la transaction ci-dessous pour tester l'infrastructure du Pi SDK.</p>
             
             <button class="btn-payment" onclick="launchPiPayment()">
@@ -234,14 +236,14 @@
     </footer>
 
     <script>
-        // Initialisation forcée du SDK
+        // Initialisation forcée du SDK en mode Sandbox
         try {
             Pi.init({ version: "2.0", sandbox: true });
         } catch(e) {
             console.error("Erreur d'initialisation du SDK:", e);
         }
 
-        let currentBalance = 100.0000;
+        let currentBalance = 100.0023;
 
         function startLiveYield() {
             const balanceElement = document.getElementById('live-balance');
@@ -266,7 +268,7 @@
         }
 
         function onIncompletePaymentFound(payment) {
-            console.log("Paiement incomplet trouvé :", payment);
+            console.log("Paiement incomplet détecté :", payment);
         }
 
         function addTransactionToHistory(amount, memo) {
@@ -299,34 +301,33 @@
             authUser();
         };
 
-        // FORCE LA DEMANDE DE PAIEMENT DIRECTEMENT AU CLIC
+        // EXÉCUTION DIRECTE DU PAIEMENT AU CLIC
         function launchPiPayment() {
-            console.log("Bouton cliqué, exécution du paiement...");
+            console.log("Bouton cliqué : lancement de la demande de paiement...");
             
             try {
                 Pi.createPayment({
                     amount: 1.0,
-                    memo: "Dépôt Pool Alpha",
-                    metadata: { investor: "Alpha Pool" },
+                    memo: "Dépôt Fonds Gelase",
+                    metadata: { investor: "Gelase Fund" },
                 }, {
                     onReadyForServerApproval: function(paymentId) {
-                        console.log("Prêt pour approbation :", paymentId);
+                        console.log("Paiement prêt pour approbation :", paymentId);
                     },
                     onReadyForServerCompletion: function(paymentId, txid) {
-                        console.log("Paiement complété ! TXID :", txid);
-                        addTransactionToHistory(1.0, "Dépôt Pool Alpha");
-                        currentBalance += 1.0;
+                        console.log("Simulation réussie ! TXID :", txid);
+                        addTransactionToHistory(1.0, "Dépôt Fonds Gelase");
                     },
                     onCancel: function(paymentId) {
-                        console.log("Paiement annulé.");
+                        console.log("Transaction annulée.");
                     },
                     onError: function(error, payment) {
-                        console.error("Erreur de paiement :", error);
-                        alert("Veuillez ouvrir l'application directement dans le Pi Browser pour activer le portefeuille.");
+                        console.error("Erreur détectée :", error);
+                        alert("Veuillez tester ce bouton directement depuis l'adresse de votre application dans le Pi Browser pour ouvrir votre portefeuille.");
                     }
                 });
             } catch (err) {
-                console.error("Le SDK Pi n'est pas encore prêt :", err);
+                console.error("Le SDK n'a pas pu s'exécuter :", err);
             }
         }
     </script>
