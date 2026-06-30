@@ -179,7 +179,7 @@
         <div class="logo-container">
             🚀 Invest Pi <span class="badge-testnet">Testnet</span>
         </div>
-        <p id="username-display" style="color: var(--pi-gold); font-size: 16px; font-weight: bold; margin: 10px 0 0 0;">
+        <p id="username-display" style="color: var(--pi-gold); font-size: 14px; font-weight: bold; margin: 10px 0 0 0; line-height: 1.4;">
             Initialisation du protocole Pi...
         </p>
     </header>
@@ -225,7 +225,7 @@
         let isPiReady = false;
 
         window.onload = function() {
-            // Animation du rendement en arrière-plan
+            // Animation du rendement
             setInterval(() => {
                 currentBalance += 0.0001;
                 if(document.getElementById('live-balance')) {
@@ -239,8 +239,8 @@
         function initPiSDK() {
             if (typeof Pi !== 'undefined') {
                 try {
-                    // On reste sur sandbox: true tant que tu testes depuis l'aperçu du Developer Portal
-                    Pi.init({ version: "2.0", sandbox: true });
+                    // sandbox: false car ton URL de developpement pointe sur Vercel directement dans ton portail
+                    Pi.init({ version: "2.0", sandbox: false });
                     isPiReady = true;
                     authUser();
                 } catch (err) {
@@ -251,21 +251,25 @@
             }
         }
 
+        // JavaScript de reconnexion robuste et diagnostic
         async function authUser() {
             try {
-                // IMPORTANT : Les scopes demandés contiennent bien 'payments'
                 const scopes = ['username', 'payments']; 
                 const authResult = await Pi.authenticate(scopes, onIncompletePaymentFound);
+                
                 if (authResult && authResult.user) {
                     document.getElementById('username-display').innerText = "Fonds Gelase connecté : @" + authResult.user.username;
+                    document.getElementById('username-display').style.color = "#2ec4b6"; 
                 }
             } catch (error) {
-                document.getElementById('username-display').innerText = "Mode Sandbox Actif";
+                // S'il y a un rejet, on affiche exactement la cause ici en rouge
+                document.getElementById('username-display').innerText = "Erreur de liaison : " + error.message;
+                document.getElementById('username-display').style.color = "#ff4d4d"; 
             }
         }
 
         function onIncompletePaymentFound(payment) {
-            console.log("Paiement incomplet détecté :", payment);
+            console.log("Paiement incomplet trouvé :", payment);
         }
 
         function addTransactionToHistory(amount, memo) {
@@ -314,7 +318,7 @@
                         console.log("Paiement annulé.");
                     },
                     onError: function(error, payment) {
-                        alert("Erreur : " + error.message);
+                        alert("Erreur réseau : " + error.message);
                     }
                 });
             } catch (err) {
