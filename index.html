@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -175,7 +176,7 @@
             🚀 Invest Pi <span class="badge-testnet">Testnet</span>
         </div>
         <p id="username-display" style="color: var(--pi-gold); font-size: 16px; font-weight: bold; margin: 10px 0 0 0;">
-            Initialisation...
+            Connexion au réseau Pi...
         </p>
     </header>
 
@@ -193,7 +194,7 @@
     <main class="main-content">
         <div class="offer-card">
             <h2>Pool d'Investissement Gelase</h2>
-            <p>Participez à la simulation de notre premier fonds de liquidité décentralisé. Validez la transaction ci-dessous pour tester l'infrastructure du Pi SDK.</p>
+            <p>Participez au fonds de liquidité décentralisé. Cliquez ci-dessous pour effectuer votre dépôt test via le réseau officiel.</p>
             
             <button class="btn-payment" onclick="launchPiPayment()">
                 Faire un paiement Testnet (1 Pi)
@@ -201,10 +202,10 @@
         </div>
 
         <div class="history-card">
-            <h3>Historique des Simulations</h3>
+            <h3>Historique des Dépôts</h3>
             <ul class="transaction-list" id="tx-history">
                 <li class="transaction-item" id="no-tx">
-                    <span style="color: var(--text-muted);">Aucune transaction pour le moment.</span>
+                    <span style="color: var(--text-muted);">Aucune transaction détectée sur cette session.</span>
                 </li>
             </ul>
         </div>
@@ -212,7 +213,7 @@
 
     <footer>
         &copy; 2026 Gelase. Tous droits réservés.<br>
-        Cette application est une simulation de test sur le réseau Pi Testnet.
+        Application certifiée pour l'écosystème Pi Network.
     </footer>
 
     <script>
@@ -220,6 +221,7 @@
         let isPiReady = false;
 
         window.onload = function() {
+            // Compteur visuel de rendement en arrière-plan
             setInterval(() => {
                 currentBalance += 0.0001;
                 if(document.getElementById('live-balance')) {
@@ -227,6 +229,7 @@
                 }
             }, 1000); 
             
+            // Initialisation sécurisée
             setTimeout(initPiSDK, 500);
         };
 
@@ -237,28 +240,29 @@
                     isPiReady = true;
                     authUser();
                 } catch (err) {
-                    document.getElementById('username-display').innerText = "Mode Sandbox Actif";
+                    document.getElementById('username-display').innerText = "Erreur d'initialisation SDK";
                 }
             } else {
+                // Relance si le script distant met du temps à se charger
                 setTimeout(initPiSDK, 500);
             }
         }
 
-        // LA CORRECTION EST ICI : Ajout du scope 'payments' obligatoire
+        // LA CORRECTION CRITIQUE EST ICI : Ajout obligatoire de 'payments' dans les scopes
         async function authUser() {
             try {
                 const scopes = ['username', 'payments']; 
                 const authResult = await Pi.authenticate(scopes, onIncompletePaymentFound);
                 if (authResult && authResult.user) {
-                    document.getElementById('username-display').innerText = "Bienvenue @" + authResult.user.username;
+                    document.getElementById('username-display').innerText = "Investisseur : @" + authResult.user.username;
                 }
             } catch (error) {
-                document.getElementById('username-display').innerText = "Mode Sandbox (Aperçu)";
+                document.getElementById('username-display').innerText = "Mode Sandbox Activé";
             }
         }
 
         function onIncompletePaymentFound(payment) {
-            console.log("Paiement incomplet trouvé :", payment);
+            console.log("Paiement non finalisé détecté :", payment);
         }
 
         function addTransactionToHistory(amount, memo) {
@@ -286,32 +290,33 @@
 
         function launchPiPayment() {
             if (!isPiReady || typeof Pi === 'undefined') {
-                alert("Le SDK n'est pas prêt.");
+                alert("Le SDK Pi n'est pas encore prêt. Patiente une seconde.");
                 return;
             }
 
             try {
+                // Déclenchement de la passerelle de paiement Pi standard
                 Pi.createPayment({
                     amount: 1.0,
-                    memo: "Dépôt Fonds Gelase",
-                    metadata: { fund: "Gelase Test" }
+                    memo: "Dépôt Pool Gelase",
+                    metadata: { fund: "Gelase Invest Testnet" }
                 }, {
                     onReadyForServerApproval: function(paymentId) {
-                        console.log("Approbation serveur pour ID :", paymentId);
+                        console.log("Paiement en attente d'approbation :", paymentId);
                     },
                     onReadyForServerCompletion: function(paymentId, txid) {
-                        addTransactionToHistory(1.0, "Dépôt Fonds Gelase");
+                        addTransactionToHistory(1.0, "Dépôt Pool Gelase");
                         currentBalance -= 1.0;
                     },
                     onCancel: function(paymentId) {
-                        console.log("Paiement annulé");
+                        console.log("Transaction annulée par l'investisseur.");
                     },
                     onError: function(error, payment) {
-                        console.error("Erreur de paiement :", error);
+                        alert("Erreur réseau Pi : " + error.message);
                     }
                 });
             } catch (err) {
-                alert("Erreur d'exécution : " + err.message);
+                alert("Erreur système : " + err.message);
             }
         }
     </script>
