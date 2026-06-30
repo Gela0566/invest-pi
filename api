@@ -1,5 +1,0 @@
-📁 invest-pi (Racine de ton projet)
- ├── 📁 api
- │    └── 📄 pay.js      <-- (Ton code serveur va ICI)
- ├── 📄 index.html       <-- (Ton interface utilisateur)
- └── 📄 vercel.json      <-- (Un fichier de config simplifié)
