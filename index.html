@@ -74,14 +74,17 @@
             }
         };
 
+        // Syntaxe simplifiée et propre sans async/await pour éviter le blocage du bouton
         function startPaymentFlow() {
             if (typeof Pi === 'undefined') {
-                alert("Le SDK Pi n'est pas prêt.");
+                alert("Le SDK Pi n'est pas chargé.");
                 return;
             }
 
             Pi.authenticate(['username', 'payments'], onIncompletePaymentFound)
                 .then(function(auth) {
+                    console.log("Authentifié avec succès :", auth.user.username);
+                    // On enchaîne directement sur la création du paiement
                     launchPiPayment();
                 })
                 .catch(function(error) {
@@ -90,3 +93,56 @@
         }
 
         function onIncompletePaymentFound(payment) {
+            console.log("Paiement incomplet trouvé :", payment);
+        }
+
+        function launchPiPayment() {
+            Pi.createPayment({
+                amount: 1.0,
+                memo: "Test de paiement d'application Invest Pi",
+                metadata: { app: "invest-pi" }
+            }, {
+                onReadyForServerApproval: function(paymentId) {
+                    console.log("paymentId généré, envoi à Vercel :", paymentId);
+                    
+                    fetch(BACKEND_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'approve', paymentId: paymentId })
+                    })
+                    .then(function(res) {
+                        if (!res.ok) {
+                            throw new Error("Erreur HTTP " + res.status);
+                        }
+                        return res.json();
+                    })
+                    .then(function(data) {
+                        console.log("Approuvé par le serveur :", data);
+                    })
+                    .catch(function(err) {
+                        alert("⚠️ Erreur Approbation Serveur : " + err.message + "\n\nTon backend n'a pas répondu à temps à Pi Network (Délai de 60s).");
+                    });
+                },
+                onReadyForServerCompletion: function(paymentId, txid) {
+                    fetch(BACKEND_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'complete', paymentId: paymentId, txid: txid })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        alert("Paiement réussi !");
+                    })
+                    .catch(err => console.error("Erreur complétion:", err));
+                },
+                onCancel: function(paymentId) {
+                    console.log("Paiement annulé.");
+                },
+                onError: function(error, payment) {
+                    alert("Erreur Pi : " + error.message);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
