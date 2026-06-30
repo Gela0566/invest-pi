@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/pay",
+      "destination": "/index.js"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
