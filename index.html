@@ -62,7 +62,6 @@
     </div>
 
     <script>
-        // Ton URL de production validée
         const BACKEND_URL = "https://invest-pi-gamma.vercel.app/api/pay";
 
         window.onload = function() {
@@ -70,22 +69,19 @@
                 try {
                     Pi.init({ version: "2.0", sandbox: true });
                 } catch (e) {
-                    console.error("Erreur initialisation Pi:", e);
+                    console.error("Erreur init Pi:", e);
                 }
             }
         };
 
-        // Cette fonction gère l'authentification obligatoire requise par Pi avant le paiement
         function startPaymentFlow() {
             if (typeof Pi === 'undefined') {
                 alert("Le SDK Pi n'est pas prêt.");
                 return;
             }
 
-            // Demande explicite des scopes requis au protocole Pi
             Pi.authenticate(['username', 'payments'], onIncompletePaymentFound)
                 .then(function(auth) {
-                    // Si l'authentification réussit, les droits 'payments' sont actifs : on lance la transaction
                     launchPiPayment();
                 })
                 .catch(function(error) {
@@ -94,46 +90,3 @@
         }
 
         function onIncompletePaymentFound(payment) {
-            console.log("Paiement incomplet trouvé :", payment);
-        }
-
-        // Déclenchement de la fenêtre de paiement (Passphrase Pi Wallet)
-        function launchPiPayment() {
-            Pi.createPayment({
-                amount: 1.0,
-                memo: "Test de paiement d'application Invest Pi",
-                metadata: { app: "invest-pi" }
-            }, {
-                onReadyForServerApproval: function(paymentId) {
-                    fetch(BACKEND_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: 'approve', paymentId: paymentId })
-                    })
-                    .then(res => res.json())
-                    .then(data => console.log("Paiement approuvé par ton serveur."))
-                    .catch(err => console.error("Erreur lors de l'approbation:", err));
-                },
-                onReadyForServerCompletion: function(paymentId, txid) {
-                    fetch(BACKEND_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: 'complete', paymentId: paymentId, txid: txid })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        alert("Paiement complété avec succès sur la Blockchain !");
-                    })
-                    .catch(err => console.error("Erreur lors de la finalisation:", err));
-                },
-                onCancel: function(paymentId) {
-                    console.log("Paiement annulé par l'utilisateur.");
-                },
-                onError: function(error, payment) {
-                    alert("Erreur de la passerelle Pi : " + error.message);
-                }
-            });
-        }
-    </script>
-</body>
-</html>
