@@ -3,349 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invest Pi | Écosystème</title>
+    <title>Invest Pi</title>
     <style>
-        :root {
-            --pi-purple: #622181;
-            --pi-purple-light: #7b2c9f;
-            --pi-gold: #fca311;
-            --bg-dark: #0b0b0c;
-            --card-bg: rgba(30, 30, 34, 0.65);
-            --card-border: rgba(255, 255, 255, 0.06);
-            --text-light: #ffffff;
-            --text-muted: #9ca3af;
-            --success-green: #10b981;
-        }
-
         body {
             margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-dark);
-            background-image: radial-gradient(circle at top right, rgba(98, 33, 129, 0.15), transparent 400px);
-            color: var(--text-light);
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: #ffffff;
+            color: #000000;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        header {
-            width: 100%;
-            max-width: 480px;
-            padding: 25px 20px 15px 20px;
-            text-align: center;
-            box-sizing: border-box;
-        }
-
-        .logo-container {
-            font-size: 26px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            color: var(--text-light);
-            display: flex;
-            align-items: center;
             justify-content: center;
-            gap: 10px;
-        }
-
-        .badge-testnet {
-            background: linear-gradient(135deg, var(--pi-gold), #f39c12);
-            color: #000;
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 20px;
-            font-weight: 700;
-            text-transform: uppercase;
-            box-shadow: 0 2px 8px rgba(252, 163, 17, 0.2);
-        }
-
-        #username-display {
-            font-size: 13px;
-            font-weight: 600;
-            margin: 12px 0 0 0;
-            padding: 6px 16px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 30px;
-            display: inline-block;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            width: 100%;
-            max-width: 480px;
-            padding: 0 20px;
-            box-sizing: border-box;
-        }
-
-        .stat-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 16px;
-            border-radius: 16px;
-            border: 1px solid var(--card-border);
+            align-items: center;
+            height: 100vh;
             text-align: center;
-            transition: transform 0.2s;
         }
 
-        .stat-card h3 {
-            margin: 0;
-            font-size: 11px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .stat-card p {
-            margin: 6px 0 0 0;
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--pi-gold);
-        }
-
-        .main-content {
-            width: 100%;
-            max-width: 480px;
-            padding: 16px 20px;
-            box-sizing: border-box;
-        }
-
-        .offer-card {
-            background: linear-gradient(145deg, rgba(30, 30, 34, 0.8), rgba(45, 24, 58, 0.5));
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(98, 33, 129, 0.25);
-            padding: 24px;
-            border-radius: 24px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            margin-bottom: 20px;
-        }
-
-        .offer-card h2 {
-            margin-top: 0;
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        .offer-card p {
-            color: var(--text-muted);
-            font-size: 13px;
-            line-height: 1.6;
-            margin: 8px 0 20px 0;
-        }
-
-        .btn-payment {
-            background: linear-gradient(135deg, var(--pi-purple), var(--pi-purple-light));
-            color: white;
-            border: none;
-            padding: 15px 24px;
-            font-size: 15px;
-            font-weight: 700;
-            border-radius: 16px;
-            cursor: pointer;
-            width: 100%;
-            box-shadow: 0 4px 15px rgba(98, 33, 129, 0.4);
-            transition: all 0.2s ease;
-        }
-
-        .btn-payment:active {
-            transform: scale(0.98);
-            opacity: 0.9;
-        }
-
-        .history-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--card-border);
-            border-radius: 24px;
+        .container {
             padding: 20px;
         }
 
-        .history-card h3 {
-            margin-top: 0;
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--text-light);
-            padding-bottom: 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        h1 {
+            color: #5a10e7;
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 10px;
         }
 
-        .transaction-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
+        p {
+            font-size: 16px;
+            color: #333333;
+            margin-bottom: 25px;
         }
 
-        .transaction-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-            font-size: 13px;
-            animation: fadeIn 0.4s ease-out;
+        button {
+            background-color: #5a10e7;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
 
-        .transaction-item:last-child {
-            border-bottom: none;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(4px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        footer {
-            margin-top: auto;
-            padding: 25px 20px;
-            font-size: 11px;
-            color: var(--text-muted);
-            text-align: center;
-            line-height: 1.5;
-            width: 100%;
-            box-sizing: border-box;
+        button:active {
+            background-color: #450bc4;
         }
     </style>
+    <!-- Chargement du SDK Pi officiel -->
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
 </head>
 <body>
 
-    <header>
-        <div class="logo-container">
-            🚀 Invest Pi <span class="badge-testnet">Testnet</span>
-        </div>
-        <p id="username-display" style="color: var(--pi-gold);">
-            Initialisation du protocole Pi...
-        </p>
-    </header>
-
-    <section class="stats-grid">
-        <div class="stat-card">
-            <h3>Solde Simulé</h3>
-            <p id="live-balance">100.0000 Pi</p>
-        </div>
-        <div class="stat-card">
-            <h3>Rendement (ROI)</h3>
-            <p style="color: var(--success-green);">+ 12.5 %</p>
-        </div>
-    </section>
-
-    <main class="main-content">
-        <div class="offer-card">
-            <h2>Pool d'Investissement Gelase</h2>
-            <p>Participez au fonds de liquidité décentralisé. Cliquez ci-dessous pour lancer la passerelle de test.</p>
-            
-            <button class="btn-payment" onclick="launchPiPayment()">
-                Faire un paiement Testnet (1 Pi)
-            </button>
-        </div>
-
-        <div class="history-card">
-            <h3>Historique des Dépôts</h3>
-            <ul class="transaction-list" id="tx-history">
-                <li class="transaction-item" id="no-tx">
-                    <span style="color: var(--text-muted); font-style: italic;">Aucune transaction détectée sur cette session.</span>
-                </li>
-            </ul>
-        </div>
-    </main>
-
-    <footer>
-        &copy; 2026 Gelase. Tous droits réservés.<br>
-        <span style="opacity: 0.6;">Application synchronisée pour l'écosystème Pi.</span>
-    </footer>
+    <div class="container">
+        <h1>Invest Pi 🚀</h1>
+        <p>Système de paiement optimisé.</p>
+        <button onclick="launchPiPayment()">Faire un paiement Testnet</button>
+    </div>
 
     <script>
-        let currentBalance = 100.0000;
-        let isPiReady = false;
-
-        // URL backend figée sur ton Vercel de production fonctionnel
         const BACKEND_URL = "https://invest-pi.vercel.app/api/pay";
 
+        // Initialisation automatique du SDK dès le chargement
         window.onload = function() {
-            setInterval(() => {
-                currentBalance += 0.0001;
-                document.getElementById('live-balance').innerText = currentBalance.toFixed(4) + " Pi";
-            }, 1000); 
-            
-            initPiSDK();
+            if (typeof Pi !== 'undefined') {
+                Pi.init({ version: "2.0", sandbox: true });
+                // Authentification silencieuse pour l'accès aux paiements
+                Pi.authenticate(['username', 'payments'], function(payment) {
+                    console.log("Paiement incomplet trouvé :", payment);
+                }).catch(function(err) {
+                    console.error("Erreur d'authentification initiale:", err);
+                });
+            }
         };
 
-        function initPiSDK() {
-            if (typeof Pi !== 'undefined') {
-                try {
-                    Pi.init({ version: "2.0", sandbox: true });
-                    isPiReady = true;
-                    authUser();
-                } catch (err) {
-                    document.getElementById('username-display').innerText = "Erreur initialisation SDK";
-                    document.getElementById('username-display').style.color = "#ff4d4d";
-                }
-            } else {
-                setTimeout(initPiSDK, 300);
-            }
-        }
-
-        async function authUser() {
-            try {
-                const authResult = await Pi.authenticate(['username', 'payments'], onIncompletePaymentFound);
-                if (authResult && authResult.user) {
-                    document.getElementById('username-display').innerText = "Fonds connecté : @" + authResult.user.username;
-                    document.getElementById('username-display').style.color = "var(--success-green)";
-                }
-            } catch (error) {
-                document.getElementById('username-display').innerText = "Erreur d'authentification : " + (error.message || JSON.stringify(error));
-                document.getElementById('username-display').style.color = "#ff4d4d";
-            }
-        }
-
-        function onIncompletePaymentFound(payment) {
-            console.log("Incomplet détecté :", payment);
-        }
-
-        function executeVisualSuccess() {
-            const historyList = document.getElementById('tx-history');
-            const noTxElement = document.getElementById('no-tx');
-            if (noTxElement) noTxElement.remove();
-
-            const li = document.createElement('li');
-            li.className = 'transaction-item';
-            const now = new Date();
-            const timeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-
-            li.innerHTML = `
-                <div>
-                    <strong style="color: #fff;">Dépôt Pool Gelase</strong><br>
-                    <span style="color: var(--text-muted); font-size: 11px;">À ${timeStr}</span>
-                </div>
-                <div style="text-align: right;">
-                    <span style="color: var(--pi-gold); font-weight: 700;">-1.0000 Pi</span><br>
-                    <span style="color: var(--success-green); font-size: 11px; font-weight: 600;">✓ Blockchain</span>
-                </div>
-            `;
-            historyList.insertBefore(li, historyList.firstChild);
-            
-            currentBalance -= 1.0;
-            document.getElementById('live-balance').innerText = currentBalance.toFixed(4) + " Pi";
-        }
-
         function launchPiPayment() {
-            if (!isPiReady) {
-                alert("Le protocole Pi n'est pas encore synchronisé.");
+            if (typeof Pi === 'undefined') {
+                alert("Le SDK Pi n'est pas prêt.");
                 return;
             }
 
             try {
                 Pi.createPayment({
                     amount: 1.0,
-                    memo: "Dépôt Pool Gelase",
-                    metadata: { fund: "Gelase Test Real" }
+                    memo: "Test de paiement d'application Invest Pi",
+                    metadata: { app: "invest-pi" }
                 }, {
                     onReadyForServerApproval: function(paymentId) {
                         fetch(BACKEND_URL, {
@@ -354,8 +97,8 @@
                             body: JSON.stringify({ action: 'approve', paymentId: paymentId })
                         })
                         .then(res => res.json())
-                        .then(data => console.log("Approbation réseau validée."))
-                        .catch(err => console.error("Erreur approbation backend", err));
+                        .then(data => console.log("Approuvé par le serveur"))
+                        .catch(err => console.error("Erreur approbation:", err));
                     },
                     onReadyForServerCompletion: function(paymentId, txid) {
                         fetch(BACKEND_URL, {
@@ -365,15 +108,15 @@
                         })
                         .then(res => res.json())
                         .then(data => {
-                            executeVisualSuccess();
+                            alert("Paiement réussi !");
                         })
-                        .catch(err => console.error("Erreur finalisation backend", err));
+                        .catch(err => console.error("Erreur finalisation:", err));
                     },
                     onCancel: function(paymentId) {
-                        console.log("Paiement annulé par l'utilisateur.");
+                        console.log("Paiement annulé.");
                     },
                     onError: function(error, payment) {
-                        alert("Erreur passerelle : " + error.message);
+                        alert("Erreur de paiement : " + error.message);
                     }
                 });
             } catch (err) {
