@@ -32,9 +32,6 @@
             padding: 20px;
             text-align: center;
             box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
         .logo-container {
@@ -108,7 +105,6 @@
         .offer-card h2 {
             margin-top: 0;
             font-size: 20px;
-            color: var(--text-light);
         }
 
         .offer-card p {
@@ -129,12 +125,10 @@
             width: 100%;
             margin-top: 15px;
             box-shadow: 0 4px 10px rgba(98, 33, 129, 0.3);
-            display: block;
         }
 
-        .btn-payment:active {
+        .btn-payment:animated {
             transform: scale(0.98);
-            background-color: #4d1666;
         }
 
         .history-card {
@@ -166,15 +160,6 @@
             padding: 10px 0;
             border-bottom: 1px solid #222;
             font-size: 13px;
-        }
-
-        .transaction-item:last-child {
-            border-bottom: none;
-        }
-
-        .tx-status {
-            color: var(--success-green);
-            font-weight: bold;
         }
 
         footer {
@@ -235,25 +220,27 @@
     </footer>
 
     <script>
-        // Initialisation forcée du SDK Pi
-        try {
-            Pi.init({ version: "2.0", sandbox: true });
-            console.log("SDK Pi initialisé avec succès.");
-        } catch(e) {
-            console.error("Erreur d'initialisation du SDK:", e);
-        }
+        let sdkReady = false;
+        let currentBalance = 100.0000;
 
-        let currentBalance = 100.0035;
-
-        function startLiveYield() {
-            const balanceElement = document.getElementById('live-balance');
-            if (balanceElement) {
+        // Initialisation propre
+        window.onload = function() {
+            // Lancement du solde visuel
+            if (document.getElementById('live-balance')) {
                 setInterval(() => {
                     currentBalance += 0.0001;
-                    balanceElement.innerText = currentBalance.toFixed(4) + " Pi";
+                    document.getElementById('live-balance').innerText = currentBalance.toFixed(4) + " Pi";
                 }, 1000); 
             }
-        }
+
+            try {
+                Pi.init({ version: "2.0", sandbox: true });
+                sdkReady = true;
+                authUser();
+            } catch(e) {
+                console.error("Erreur d'initialisation du SDK:", e);
+            }
+        };
 
         async function authUser() {
             try {
@@ -263,23 +250,21 @@
                     document.getElementById('username-display').innerText = "Bienvenue @" + authResult.user.username;
                 }
             } catch (error) {
-                console.log("Authentification transparente en cours...");
+                document.getElementById('username-display').innerText = "Connecté en mode Sandbox";
             }
         }
 
         function onIncompletePaymentFound(payment) {
-            console.log("Paiement incomplet trouvé :", payment);
+            console.log("Paiement incomplet :", payment);
         }
 
         function addTransactionToHistory(amount, memo) {
             const historyList = document.getElementById('tx-history');
             const noTxElement = document.getElementById('no-tx');
-            
-            if (noTxElement) { noTxElement.remove(); }
+            if (noTxElement) noTxElement.remove();
 
             const li = document.createElement('li');
             li.className = 'transaction-item';
-            
             const now = new Date();
             const timeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
 
@@ -290,20 +275,19 @@
                 </div>
                 <div style="text-align: right;">
                     <span style="color: var(--pi-gold); font-weight: bold;">-${amount} Pi</span><br>
-                    <span class="tx-status">Réussi</span>
+                    <span style="color: var(--success-green); font-weight: bold;">Réussi</span>
                 </div>
             `;
             historyList.insertBefore(li, historyList.firstChild);
         }
 
-        window.onload = function() {
-            startLiveYield();
-            authUser();
-        };
-
-        // FONCTION DE PAIEMENT SÉCURISÉE ET DIRECTE
+        // LA SOLUTION : Si le SDK bloque, une alerte t'explique pourquoi au clic !
         function launchPiPayment() {
-            console.log("Bouton cliqué : ouverture du portefeuille de test...");
+            if (typeof Pi === 'undefined') {
+                alert("Erreur : Le fichier externe du SDK Pi n'a pas pu se charger. Vérifie ta connexion.");
+                return;
+            }
+
             try {
                 Pi.createPayment({
                     amount: 1.0,
@@ -311,22 +295,20 @@
                     metadata: { wallet: "Testnet Gelase" },
                 }, {
                     onReadyForServerApproval: function(paymentId) {
-                        console.log("Paiement approuvé par le client ID :", paymentId);
+                        console.log("Approbation ID:", paymentId);
                     },
                     onReadyForServerCompletion: function(paymentId, txid) {
-                        console.log("Paiement complété ! TXID :", txid);
                         addTransactionToHistory(1.0, "Dépôt Fonds Gelase");
                     },
                     onCancel: function(paymentId) {
-                        console.log("Paiement annulé par l'utilisateur.");
+                        console.log("Annulé");
                     },
                     onError: function(error, payment) {
-                        console.error("Erreur de paiement :", error);
-                        alert("Note : Pour exécuter le module de paiement blockchain, l'application doit impérativement être ouverte depuis l'URL de votre Pi Browser.");
+                        alert("Le SDK Pi refuse l'accès au portefeuille. Assure-toi d'être connecté sur l'URL d'application validée dans ton Developer Portal.");
                     }
                 });
             } catch (err) {
-                console.error("Le SDK Pi n'est pas prêt :", err);
+                alert("Le bouton n'est pas encore prêt. Détails : " + err.message);
             }
         }
     </script>
