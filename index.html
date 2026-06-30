@@ -219,8 +219,8 @@
         let currentBalance = 100.0000;
         let isPiReady = false;
 
-        // Détection automatique de ton URL Vercel pour cibler le dossier /api/pay
-        const BACKEND_URL = window.location.origin + "/api/pay";
+        // FORCE l'URL absolue de ton API de validation Vercel pour éviter tout conflit d'origine (CORS) dans la Sandbox Gamma
+        const BACKEND_URL = "https://invest-pi.vercel.app/api/pay";
 
         window.onload = function() {
             setInterval(() => {
@@ -234,7 +234,6 @@
         function initPiSDK() {
             if (typeof Pi !== 'undefined') {
                 try {
-                    // sandbox: true requis pour lier le portefeuille Testnet
                     Pi.init({ version: "2.0", sandbox: true });
                     isPiReady = true;
                     authUser();
@@ -254,8 +253,9 @@
                     document.getElementById('username-display').style.color = "#2ec4b6";
                 }
             } catch (error) {
-                document.getElementById('username-display').innerText = "Prêt pour exécution";
-                document.getElementById('username-display').style.color = "var(--pi-gold)";
+                // Affiche l'erreur système exacte retournée par l'écosystème Pi au lieu d'un message générique
+                document.getElementById('username-display').innerText = "Erreur d'authentification : " + (error.message || JSON.stringify(error));
+                document.getElementById('username-display').style.color = "#ff4d4d";
             }
         }
 
@@ -302,7 +302,6 @@
                     metadata: { fund: "Gelase Test Real" }
                 }, {
                     onReadyForServerApproval: function(paymentId) {
-                        // Liaison avec ton fichier /api/pay.js pour valider l'ID
                         fetch(BACKEND_URL, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -313,7 +312,6 @@
                         .catch(err => console.error("Erreur approbation backend", err));
                     },
                     onReadyForServerCompletion: function(paymentId, txid) {
-                        // Liaison finale après la saisie de ta passphrase
                         fetch(BACKEND_URL, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
