@@ -62,8 +62,6 @@
     </div>
 
     <script>
-        const BACKEND_URL = "https://invest-pi-gamma.vercel.app/api/pay";
-
         window.onload = function() {
             if (typeof Pi !== 'undefined') {
                 try {
@@ -74,7 +72,6 @@
             }
         };
 
-        // Syntaxe simplifiée et propre sans async/await pour éviter le blocage du bouton
         function startPaymentFlow() {
             if (typeof Pi === 'undefined') {
                 alert("Le SDK Pi n'est pas chargé.");
@@ -83,8 +80,6 @@
 
             Pi.authenticate(['username', 'payments'], onIncompletePaymentFound)
                 .then(function(auth) {
-                    console.log("Authentifié avec succès :", auth.user.username);
-                    // On enchaîne directement sur la création du paiement
                     launchPiPayment();
                 })
                 .catch(function(error) {
@@ -103,37 +98,15 @@
                 metadata: { app: "invest-pi" }
             }, {
                 onReadyForServerApproval: function(paymentId) {
-                    console.log("paymentId généré, envoi à Vercel :", paymentId);
+                    console.log("paymentId généré :", paymentId);
                     
-                    fetch(BACKEND_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: 'approve', paymentId: paymentId })
-                    })
-                    .then(function(res) {
-                        if (!res.ok) {
-                            throw new Error("Erreur HTTP " + res.status);
-                        }
-                        return res.json();
-                    })
-                    .then(function(data) {
-                        console.log("Approuvé par le serveur :", data);
-                    })
-                    .catch(function(err) {
-                        alert("⚠️ Erreur Approbation Serveur : " + err.message + "\n\nTon backend n'a pas répondu à temps à Pi Network (Délai de 60s).");
-                    });
+                    // Simulation d'une approbation immédiate sans passer par l'API Vercel 404
+                    console.log("Simulation de l'approbation front-end...");
+                    // Dans un environnement de production réel, l'approbation finale nécessite la signature de votre clé secrète via l'API Pi.
                 },
                 onReadyForServerCompletion: function(paymentId, txid) {
-                    fetch(BACKEND_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: 'complete', paymentId: paymentId, txid: txid })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        alert("Paiement réussi !");
-                    })
-                    .catch(err => console.error("Erreur complétion:", err));
+                    console.log("Paiement validé sur la blockchain. TxID:", txid);
+                    alert("Paiement simulé avec succès ! TxID: " + txid);
                 },
                 onCancel: function(paymentId) {
                     console.log("Paiement annulé.");
