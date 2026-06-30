@@ -142,119 +142,52 @@
 
         .history-card h3 {
             margin-top: 0;
-            <script>
-        let currentBalance = 100.0000;
-        let isPiReady = false;
-
-        window.onload = function() {
-            // Animation du rendement simulé
-            setInterval(() => {
-                currentBalance += 0.0001;
-                if(document.getElementById('live-balance')) {
-                    document.getElementById('live-balance').innerText = currentBalance.toFixed(4) + " Pi";
-                }
-            }, 1000); 
-            
-            // On lance l'initialisation proprement après le chargement de la page
-            initPiSDK();
-        };
-
-        function initPiSDK() {
-            if (typeof Pi !== 'undefined') {
-                try {
-                    // 1. On initialise d'abord le SDK
-                    Pi.init({ version: "2.0", sandbox: false });
-                    console.log("SDK Pi initialisé avec succès.");
-                    
-                    // 2. SEULEMENT APRÈS, on active le drapeau et on lance l'authentification
-                    isPiReady = true;
-                    authUser();
-                } catch (err) {
-                    document.getElementById('username-display').innerText = "Erreur d'initialisation : " + err.message;
-                    document.getElementById('username-display').style.color = "#ff4d4d";
-                }
-            } else {
-                // Si le script Pi charge un peu lentement, on réessaye dans 200ms
-                setTimeout(initPiSDK, 200);
-            }
+            font-size: 16px;
+            color: var(--text-light);
+            border-bottom: 1px solid #2a2a2a;
+            padding-bottom: 8px;
         }
 
-        async function authUser() {
-            // On s'assure une deuxième fois qu'on ne lance pas auth sans init
-            if (!isPiReady) return; 
-
-            try {
-                const scopes = ['username', 'payments']; 
-                const authResult = await Pi.authenticate(scopes, onIncompletePaymentFound);
-                
-                if (authResult && authResult.user) {
-                    document.getElementById('username-display').innerText = "Fonds Gelase connecté : @" + authResult.user.username;
-                    document.getElementById('username-display').style.color = "#2ec4b6"; 
-                }
-            } catch (error) {
-                document.getElementById('username-display').innerText = "Erreur d'authentification : " + error.message;
-                document.getElementById('username-display').style.color = "#ff4d4d"; 
-            }
+        .transaction-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
         }
 
-        function onIncompletePaymentFound(payment) {
-            console.log("Paiement incomplet trouvé :", payment);
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #222;
+            font-size: 13px;
         }
 
-        function addTransactionToHistory(amount, memo) {
-            const historyList = document.getElementById('tx-history');
-            const noTxElement = document.getElementById('no-tx');
-            if (noTxElement) noTxElement.remove();
-
-            const li = document.createElement('li');
-            li.className = 'transaction-item';
-            const now = new Date();
-            const timeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-
-            li.innerHTML = `
-                <div>
-                    <strong>${memo}</strong><br>
-                    <span style="color: var(--text-muted); font-size: 11px;">Aujourd'hui à ${timeStr}</span>
-                </div>
-                <div style="text-align: right;">
-                    <span style="color: var(--pi-gold); font-weight: bold;">-${amount} Pi</span><br>
-                    <span style="color: var(--success-green); font-weight: bold;">Réussi</span>
-                </div>
-            `;
-            historyList.insertBefore(li, historyList.firstChild);
+        footer {
+            margin-top: auto;
+            padding: 20px;
+            font-size: 11px;
+            color: var(--text-muted);
+            text-align: center;
         }
+    </style>
+    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+</head>
+<body>
 
-        function launchPiPayment() {
-            if (!isPiReady || typeof Pi === 'undefined') {
-                alert("Le SDK Pi n'est pas encore prêt ou initialisé.");
-                return;
-            }
+    <header>
+        <div class="logo-container">
+            🚀 Invest Pi <span class="badge-testnet">Testnet</span>
+        </div>
+        <p id="username-display" style="color: #2ec4b6; font-size: 14px; font-weight: bold; margin: 10px 0 0 0;">
+            Fonds Gelase connecté (Testnet)
+        </p>
+    </header>
 
-            try {
-                Pi.createPayment({
-                    amount: 1.0,
-                    memo: "Dépôt Pool Gelase",
-                    metadata: { fund: "Gelase Invest Testnet" }
-                }, {
-                    onReadyForServerApproval: function(paymentId) {
-                        console.log("Paiement initié, ID :", paymentId);
-                    },
-                    onReadyForServerCompletion: function(paymentId, txid) {
-                        addTransactionToHistory(1.0, "Dépôt Pool Gelase");
-                        currentBalance -= 1.0;
-                    },
-                    onCancel: function(paymentId) {
-                        console.log("Paiement annulé.");
-                    },
-                    onError: function(error, payment) {
-                        alert("Erreur réseau : " + error.message);
-                    }
-                });
-            } catch (err) {
-                alert("Erreur système : " + err.message);
-            }
-        }
-    </script>
+    <section class="stats-grid">
+        <div class="stat-card">
+            <h3>Solde Simulé</h3>
+            <p id="live-balance">100.0000 Pi</p>
         </div>
         <div class="stat-card">
             <h3>Rendement (ROI)</h3>
@@ -265,7 +198,7 @@
     <main class="main-content">
         <div class="offer-card">
             <h2>Pool d'Investissement Gelase</h2>
-            <p>Participez à la simulation de notre fonds de liquidité décentralisé. Validez la transaction ci-dessous pour tester le paiement.</p>
+            <p>Participez à la simulation de notre fonds de liquidité décentralisé. Validez la transaction ci-dessous pour tester l'infrastructure du Pi SDK.</p>
             
             <button class="btn-payment" onclick="launchPiPayment()">
                 Faire un paiement Testnet (1 Pi)
@@ -273,10 +206,10 @@
         </div>
 
         <div class="history-card">
-            <h3>Historique des Dépôts</h3>
+            <h3>Historique des Simulations</h3>
             <ul class="transaction-list" id="tx-history">
                 <li class="transaction-item" id="no-tx">
-                    <span style="color: var(--text-muted);">Aucune transaction détectée sur cette session.</span>
+                    <span style="color: var(--text-muted);">Aucune transaction pour le moment.</span>
                 </li>
             </ul>
         </div>
@@ -284,112 +217,80 @@
 
     <footer>
         &copy; 2026 Gelase. Tous droits réservés.<br>
-        Application certifiée pour l'écosystème Pi Network.
+        Cette application est une simulation de test sur le réseau Pi Testnet.
     </footer>
 
     <script>
         let currentBalance = 100.0000;
-        let isPiReady = false;
 
-        window.onload = function() {
-            // Animation du rendement
-            setInterval(() => {
-                currentBalance += 0.0001;
-                if(document.getElementById('live-balance')) {
-                    document.getElementById('live-balance').innerText = currentBalance.toFixed(4) + " Pi";
-                }
-            }, 1000); 
+        // Compteur de solde autonome (Fonctionne quoi qu'il arrive)
+        setInterval(() => {
+            currentBalance += 0.0001;
+            document.getElementById('live-balance').innerText = currentBalance.toFixed(4) + " Pi";
+        }, 1000);
+
+        // INITIALISATION DIRECTE DU SDK (Comme hier, sans chichis)
+        try {
+            Pi.init({ version: "2.0", sandbox: false });
             
-            setTimeout(initPiSDK, 500);
-        };
-
-        function initPiSDK() {
-            if (typeof Pi !== 'undefined') {
-                try {
-                    // sandbox: false car ton URL de developpement pointe sur Vercel directement dans ton portail
-                    Pi.init({ version: "2.0", sandbox: false });
-                    isPiReady = true;
-                    authUser();
-                } catch (err) {
-                    document.getElementById('username-display').innerText = "Erreur d'initialisation SDK";
-                }
-            } else {
-                setTimeout(initPiSDK, 500);
-            }
-        }
-
-        // JavaScript de reconnexion robuste et diagnostic
-        async function authUser() {
-            try {
-                const scopes = ['username', 'payments']; 
-                const authResult = await Pi.authenticate(scopes, onIncompletePaymentFound);
-                
-                if (authResult && authResult.user) {
-                    document.getElementById('username-display').innerText = "Fonds Gelase connecté : @" + authResult.user.username;
-                    document.getElementById('username-display').style.color = "#2ec4b6"; 
-                }
-            } catch (error) {
-                // S'il y a un rejet, on affiche exactement la cause ici en rouge
-                document.getElementById('username-display').innerText = "Erreur de liaison : " + error.message;
-                document.getElementById('username-display').style.color = "#ff4d4d"; 
-            }
+            // Authentification immédiate au chargement
+            Pi.authenticate(['username', 'payments'], onIncompletePaymentFound)
+                .then(function(auth) {
+                    document.getElementById('username-display').innerText = "Investisseur Testnet : @" + auth.user.username;
+                })
+                .catch(function(err) {
+                    console.log("Erreur auth passive:", err);
+                });
+        } catch(e) {
+            console.log("Erreur d'initialisation immédiate:", e);
         }
 
         function onIncompletePaymentFound(payment) {
-            console.log("Paiement incomplet trouvé :", payment);
+            console.log("Paiement non finalisé trouvé :", payment);
         }
 
-        function addTransactionToHistory(amount, memo) {
-            const historyList = document.getElementById('tx-history');
-            const noTxElement = document.getElementById('no-tx');
-            if (noTxElement) noTxElement.remove();
-
-            const li = document.createElement('li');
-            li.className = 'transaction-item';
-            const now = new Date();
-            const timeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-
-            li.innerHTML = `
-                <div>
-                    <strong>${memo}</strong><br>
-                    <span style="color: var(--text-muted); font-size: 11px;">Aujourd'hui à ${timeStr}</span>
-                </div>
-                <div style="text-align: right;">
-                    <span style="color: var(--pi-gold); font-weight: bold;">-${amount} Pi</span><br>
-                    <span style="color: var(--success-green); font-weight: bold;">Réussi</span>
-                </div>
-            `;
-            historyList.insertBefore(li, historyList.firstChild);
-        }
-
+        // DECLENCHEMENT DU PAIEMENT PI
         function launchPiPayment() {
-            if (!isPiReady || typeof Pi === 'undefined') {
-                alert("Le SDK Pi n'est pas prêt.");
-                return;
-            }
-
             try {
                 Pi.createPayment({
                     amount: 1.0,
                     memo: "Dépôt Pool Gelase",
-                    metadata: { fund: "Gelase Invest Testnet" }
+                    metadata: { poolId: "alpha_fund_01" }
                 }, {
                     onReadyForServerApproval: function(paymentId) {
-                        console.log("Paiement initié, ID :", paymentId);
+                        console.log("Payment ID prêt pour le serveur :", paymentId);
                     },
                     onReadyForServerCompletion: function(paymentId, txid) {
-                        addTransactionToHistory(1.0, "Dépôt Pool Gelase");
+                        console.log("Paiement complété avec succès !");
+                        
+                        // Ajout à l'historique de l'interface
+                        const historyList = document.getElementById('tx-history');
+                        const noTx = document.getElementById('no-tx');
+                        if (noTx) noTx.remove();
+
+                        const li = document.createElement('li');
+                        li.className = 'transaction-item';
+                        li.innerHTML = `
+                            <div>
+                                <strong>Dépôt Pool Gelase</strong><br>
+                                <span style="color: var(--text-muted); font-size: 11px;">Succès</span>
+                            </div>
+                            <div style="text-align: right; color: var(--pi-gold); font-weight: bold;">
+                                -1.00 Pi
+                            </div>
+                        `;
+                        historyList.insertBefore(li, historyList.firstChild);
                         currentBalance -= 1.0;
                     },
                     onCancel: function(paymentId) {
-                        console.log("Paiement annulé.");
+                        console.log("Paiement annulé par l'utilisateur.");
                     },
                     onError: function(error, payment) {
-                        alert("Erreur réseau : " + error.message);
+                        alert("Erreur lors du paiement : " + error.message);
                     }
                 });
             } catch (err) {
-                alert("Erreur système : " + err.message);
+                alert("Erreur d'exécution : " + err.message);
             }
         }
     </script>
