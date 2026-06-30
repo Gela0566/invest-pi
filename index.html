@@ -225,7 +225,7 @@
         let isPiReady = false;
 
         window.onload = function() {
-            // Compteur de rendement fluide
+            // Animation du rendement en arrière-plan
             setInterval(() => {
                 currentBalance += 0.0001;
                 if(document.getElementById('live-balance')) {
@@ -233,15 +233,14 @@
                 }
             }, 1000); 
             
-            // Lancement du SDK
             setTimeout(initPiSDK, 500);
         };
 
         function initPiSDK() {
             if (typeof Pi !== 'undefined') {
                 try {
-                    // CORRECTIF 1 : Désactivation du mode sandbox isolé pour lier le Developer Portal en ligne
-                    Pi.init({ version: "2.0", sandbox: false });
+                    // On reste sur sandbox: true tant que tu testes depuis l'aperçu du Developer Portal
+                    Pi.init({ version: "2.0", sandbox: true });
                     isPiReady = true;
                     authUser();
                 } catch (err) {
@@ -254,19 +253,19 @@
 
         async function authUser() {
             try {
-                // CORRECTIF 2 : Demande explicite et obligatoire des autorisations de paiement
+                // IMPORTANT : Les scopes demandés contiennent bien 'payments'
                 const scopes = ['username', 'payments']; 
                 const authResult = await Pi.authenticate(scopes, onIncompletePaymentFound);
                 if (authResult && authResult.user) {
                     document.getElementById('username-display').innerText = "Fonds Gelase connecté : @" + authResult.user.username;
                 }
             } catch (error) {
-                document.getElementById('username-display').innerText = "Connecté via le Developer Portal";
+                document.getElementById('username-display').innerText = "Mode Sandbox Actif";
             }
         }
 
         function onIncompletePaymentFound(payment) {
-            console.log("Paiement incomplet trouvé :", payment);
+            console.log("Paiement incomplet détecté :", payment);
         }
 
         function addTransactionToHistory(amount, memo) {
@@ -294,19 +293,18 @@
 
         function launchPiPayment() {
             if (!isPiReady || typeof Pi === 'undefined') {
-                alert("Le système Pi n'est pas prêt. Ouvrez l'application depuis le menu Develop du Pi Browser.");
+                alert("Le SDK Pi n'est pas prêt.");
                 return;
             }
 
             try {
-                // Création et exécution native du paiement
                 Pi.createPayment({
                     amount: 1.0,
                     memo: "Dépôt Pool Gelase",
                     metadata: { fund: "Gelase Invest Testnet" }
                 }, {
                     onReadyForServerApproval: function(paymentId) {
-                        console.log("Approbation serveur requise pour :", paymentId);
+                        console.log("Paiement initié, ID :", paymentId);
                     },
                     onReadyForServerCompletion: function(paymentId, txid) {
                         addTransactionToHistory(1.0, "Dépôt Pool Gelase");
@@ -316,7 +314,7 @@
                         console.log("Paiement annulé.");
                     },
                     onError: function(error, payment) {
-                        alert("Erreur d'exécution : " + error.message);
+                        alert("Erreur : " + error.message);
                     }
                 });
             } catch (err) {
