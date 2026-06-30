@@ -62,8 +62,8 @@
     </div>
 
     <script>
-        // TRÈS IMPORTANT : On pointe directement sur ta racine Vercel qui fonctionne
-        const BACKEND_URL = "https://invest-pi-gamma.vercel.app/";
+        // CORRECTION : On vise la route propre gérée par vercel.json
+        const BACKEND_URL = "https://invest-pi-gamma.vercel.app/api/pay";
 
         window.onload = function() {
             if (typeof Pi !== 'undefined') {
@@ -101,7 +101,6 @@
                 metadata: { app: "invest-pi" }
             }, {
                 onReadyForServerApproval: function(paymentId) {
-                    // Envoie l'ID directement à la racine (ton index.js ou index.html configuré sur Vercel)
                     fetch(BACKEND_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -114,7 +113,7 @@
                         return res.json();
                     })
                     .then(function(data) {
-                        console.log("Approuvé avec succès par la racine :", data);
+                        console.log("Approuvé avec succès par le backend via la route réécrite :", data);
                     })
                     .catch(function(err) {
                         alert("Erreur communication : " + err.message);
