@@ -62,6 +62,8 @@
     </div>
 
     <script>
+        const BACKEND_URL = "https://invest-pi-gamma.vercel.app/api/pay";
+
         window.onload = function() {
             if (typeof Pi !== 'undefined') {
                 try {
@@ -98,21 +100,42 @@
                 metadata: { app: "invest-pi" }
             }, {
                 onReadyForServerApproval: function(paymentId) {
-                    console.log("paymentId généré avec succès :", paymentId);
-                    
-                    // ON INDIQUE À PI NETWORK QUE L'APPLICATION TRAITE LE PAIEMENT
-                    // Cela évite l'expiration automatique immédiate pendant le test d'interface
-                    alert("ID de transaction généré : " + paymentId + "\n\nRedirection vers le Wallet Pi de Test...");
+                    // Envoi direct de l'ID à ton API pay.js sur Vercel
+                    fetch(BACKEND_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'approve', paymentId: paymentId })
+                    })
+                    .then(function(res) {
+                        if (!res.ok) {
+                            throw new Error("Erreur serveur " + res.status);
+                        }
+                        return res.json();
+                    })
+                    .then(function(data) {
+                        console.log("Approuvé avec succès par le backend :", data);
+                    })
+                    .catch(function(err) {
+                        alert("Erreur communication backend : " + err.message);
+                    });
                 },
                 onReadyForServerCompletion: function(paymentId, txid) {
-                    console.log("Paiement exécuté. TxID:", txid);
-                    alert("Paiement complété !");
+                    fetch(BACKEND_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'complete', paymentId: paymentId, txid: txid })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        alert("Félicitations, paiement réussi !");
+                    })
+                    .catch(err => console.error("Erreur complétion:", err));
                 },
                 onCancel: function(paymentId) {
                     console.log("Paiement annulé.");
                 },
                 onError: function(error, payment) {
-                    alert("Statut du protocole : " + error.message);
+                    alert("Erreur Pi : " + error.message);
                 }
             });
         }
