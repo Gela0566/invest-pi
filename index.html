@@ -219,6 +219,9 @@
         let currentBalance = 100.0000;
         let isPiReady = false;
 
+        // Détection automatique de ton URL Vercel pour cibler le dossier /api/pay
+        const BACKEND_URL = window.location.origin + "/api/pay";
+
         window.onload = function() {
             setInterval(() => {
                 currentBalance += 0.0001;
@@ -231,11 +234,12 @@
         function initPiSDK() {
             if (typeof Pi !== 'undefined') {
                 try {
+                    // sandbox: true requis pour lier le portefeuille Testnet
                     Pi.init({ version: "2.0", sandbox: true });
                     isPiReady = true;
                     authUser();
                 } catch (err) {
-                    document.getElementById('username-display').innerText = "Erreur initialisation";
+                    document.getElementById('username-display').innerText = "Erreur initialisation SDK";
                 }
             } else {
                 setTimeout(initPiSDK, 300);
@@ -256,7 +260,7 @@
         }
 
         function onIncompletePaymentFound(payment) {
-            console.log("Incomplet :", payment);
+            console.log("Incomplet détecté :", payment);
         }
 
         function executeVisualSuccess() {
@@ -276,7 +280,7 @@
                 </div>
                 <div style="text-align: right;">
                     <span style="color: var(--pi-gold); font-weight: bold;">-1.0000 Pi</span><br>
-                    <span style="color: var(--success-green); font-weight: bold;">Réussi</span>
+                    <span style="color: var(--success-green); font-weight: bold;">Blockchain Confirmée</span>
                 </div>
             `;
             historyList.insertBefore(li, historyList.firstChild);
@@ -286,28 +290,50 @@
         }
 
         function launchPiPayment() {
+            if (!isPiReady) {
+                alert("Le protocole Pi n'est pas encore synchronisé.");
+                return;
+            }
+
             try {
                 Pi.createPayment({
                     amount: 1.0,
                     memo: "Dépôt Pool Gelase",
-                    metadata: { fund: "Gelase Test" }
+                    metadata: { fund: "Gelase Test Real" }
                 }, {
                     onReadyForServerApproval: function(paymentId) {
-                        executeVisualSuccess();
+                        // Liaison avec ton fichier /api/pay.js pour valider l'ID
+                        fetch(BACKEND_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: 'approve', paymentId: paymentId })
+                        })
+                        .then(res => res.json())
+                        .then(data => console.log("Approbation réseau validée."))
+                        .catch(err => console.error("Erreur approbation backend", err));
                     },
                     onReadyForServerCompletion: function(paymentId, txid) {
-                        executeVisualSuccess();
+                        // Liaison finale après la saisie de ta passphrase
+                        fetch(BACKEND_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: 'complete', paymentId: paymentId, txid: txid })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            executeVisualSuccess();
+                        })
+                        .catch(err => console.error("Erreur finalisation backend", err));
                     },
                     onCancel: function(paymentId) {
-                        console.log("Annulé");
+                        console.log("Paiement annulé par l'utilisateur.");
                     },
                     onError: function(error, payment) {
-                        // FORCE LE SUCCÈS VISUEL ET L'HISTORIQUE MÊME EN CAS D'ERREUR BLOCKCHAIN "PAYMENT NOT FOUND"
-                        executeVisualSuccess();
+                        alert("Erreur passerelle : " + error.message);
                     }
                 });
             } catch (err) {
-                executeVisualSuccess();
+                alert("Erreur système : " + err.message);
             }
         }
     </script>
