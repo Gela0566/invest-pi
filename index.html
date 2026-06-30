@@ -125,6 +125,7 @@
             width: 100%;
             margin-top: 15px;
             box-shadow: 0 4px 10px rgba(98, 33, 129, 0.3);
+            display: block;
         }
 
         .btn-payment:active {
@@ -132,7 +133,6 @@
             background-color: #4d1666;
         }
 
-        /* AJOUT DESIGN ÉTAPE 3 : Section Historique des Transactions */
         .history-card {
             background-color: var(--card-bg);
             border: 1px solid #2a2a2a;
@@ -193,7 +193,7 @@
             🚀 Invest Pi <span class="badge-testnet">Testnet</span>
         </div>
         <p id="username-display" style="color: var(--pi-gold); font-size: 16px; font-weight: bold; margin: 10px 0 0 0;">
-            Connexion au réseau Pi...
+            Investisseur Testnet
         </p>
     </header>
 
@@ -234,7 +234,12 @@
     </footer>
 
     <script>
-        Pi.init({ version: "2.0", sandbox: true }); 
+        // Initialisation forcée du SDK
+        try {
+            Pi.init({ version: "2.0", sandbox: true });
+        } catch(e) {
+            console.error("Erreur d'initialisation du SDK:", e);
+        }
 
         let currentBalance = 100.0000;
 
@@ -252,13 +257,11 @@
             try {
                 const scopes = ['username'];
                 const authResult = await Pi.authenticate(scopes, onIncompletePaymentFound);
-                
                 if (authResult && authResult.user) {
                     document.getElementById('username-display').innerText = "Bienvenue @" + authResult.user.username;
                 }
             } catch (error) {
-                console.error("Erreur d'authentification :", error);
-                document.getElementById('username-display').innerText = "Mode Invité (Testnet)";
+                console.log("Authentification en attente du clic de paiement.");
             }
         }
 
@@ -266,21 +269,15 @@
             console.log("Paiement incomplet trouvé :", payment);
         }
 
-        // ÉTAPE 3 : Fonction pour ajouter dynamiquement une ligne de transaction réussie
         function addTransactionToHistory(amount, memo) {
             const historyList = document.getElementById('tx-history');
             const noTxElement = document.getElementById('no-tx');
             
-            // Supprime le message "Aucune transaction" si c'est la première
-            if (noTxElement) {
-                noTxElement.remove();
-            }
+            if (noTxElement) { noTxElement.remove(); }
 
-            // Crée un nouvel élément de liste
             const li = document.createElement('li');
             li.className = 'transaction-item';
             
-            // Heure actuelle
             const now = new Date();
             const timeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
 
@@ -294,42 +291,43 @@
                     <span class="tx-status">Réussi</span>
                 </div>
             `;
-            
-            // Ajoute en haut de la liste
             historyList.insertBefore(li, historyList.firstChild);
         }
 
         window.onload = function() {
-            authUser();
             startLiveYield();
+            authUser();
         };
 
+        // FORCE LA DEMANDE DE PAIEMENT DIRECTEMENT AU CLIC
         function launchPiPayment() {
-            console.log("Lancement du paiement...");
+            console.log("Bouton cliqué, exécution du paiement...");
             
-            Pi.createPayment({
-                amount: 1.0,
-                memo: "Dépôt Pool Alpha",
-                metadata: { investor: "Alpha Pool" },
-            }, {
-                onReadyForServerApproval: function(paymentId) {
-                    console.log("Payment ID prêt pour approbation (Étape 2 Backend) :", paymentId);
-                    // ÉCOSYSTEME LIAISON FUTURE : À ce niveau, votre code appellera votre serveur distant pour valider.
-                },
-                onReadyForServerCompletion: function(paymentId, txid) {
-                    console.log("Paiement complété ! TXID :", txid);
-                    // AJOUT EFFECTIF ÉTAPE 3 : Ajoute la transaction au tableau en cas de succès !
-                    addTransactionToHistory(1.0, "Dépôt Pool Alpha");
-                    // On augmente aussi artificiellement le solde de départ suite au dépôt
-                    currentBalance += 1.0;
-                },
-                onCancel: function(paymentId) {
-                    console.log("Paiement annulé.");
-                },
-                onError: function(error, payment) {
-                    console.error("Une erreur est survenue :", error);
-                }
-            });
+            try {
+                Pi.createPayment({
+                    amount: 1.0,
+                    memo: "Dépôt Pool Alpha",
+                    metadata: { investor: "Alpha Pool" },
+                }, {
+                    onReadyForServerApproval: function(paymentId) {
+                        console.log("Prêt pour approbation :", paymentId);
+                    },
+                    onReadyForServerCompletion: function(paymentId, txid) {
+                        console.log("Paiement complété ! TXID :", txid);
+                        addTransactionToHistory(1.0, "Dépôt Pool Alpha");
+                        currentBalance += 1.0;
+                    },
+                    onCancel: function(paymentId) {
+                        console.log("Paiement annulé.");
+                    },
+                    onError: function(error, payment) {
+                        console.error("Erreur de paiement :", error);
+                        alert("Veuillez ouvrir l'application directement dans le Pi Browser pour activer le portefeuille.");
+                    }
+                });
+            } catch (err) {
+                console.error("Le SDK Pi n'est pas encore prêt :", err);
+            }
         }
     </script>
 </body>
