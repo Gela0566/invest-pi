@@ -1,106 +1,193 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invest Pi</title>
-    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-</head>
-<body style="font-family: Arial, sans-serif; text-align: center; padding-top: 50px;">
-    <h1 style="color: #6200ee;">Invest Pi 🚀</h1>
-    <p>Système de paiement optimisé.</p>
+    <title>Invest Pi | Écosystème</title>
+    <style>
+        :root {
+            --pi-purple: #622181;
+            --pi-gold: #fca311;
+            --bg-dark: #121212;
+            --card-bg: #1e1e1e;
+            --text-light: #ffffff;
+            --text-muted: #a0a0a0;
+        }
 
-    <button id="pay-btn" style="padding: 15px 30px; background-color: #6200ee; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">
-        Faire un paiement Testnet
-    </button>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .logo-container {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .badge-testnet {
+            background-color: var(--pi-gold);
+            color: #000;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+            max-width: 500px;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        .stat-card {
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #2a2a2a;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            margin: 0;
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .stat-card p {
+            margin: 5px 0 0 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--pi-gold);
+        }
+
+        .main-content {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .offer-card {
+            background: linear-gradient(145deg, #1e1e1e, #25182e);
+            border: 1px solid #3d1c52;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .offer-card h2 {
+            margin-top: 0;
+            font-size: 20px;
+        }
+
+        .offer-card p {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .btn-payment {
+            background-color: var(--pi-purple);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            box-shadow: 0 4px 10px rgba(98, 33, 129, 0.3);
+        }
+
+        .btn-payment:active {
+            transform: scale(0.98);
+            background-color: #4d1666;
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 20px;
+            font-size: 11px;
+            color: var(--text-muted);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            🚀 Invest Pi <span class="badge-testnet">Testnet</span>
+        </div>
+        <p style="color: var(--text-muted); font-size: 14px; margin: 5px 0 0 0;">Système d'investissement optimisé</p>
+    </header>
+
+    <section class="stats-grid">
+        <div class="stat-card">
+            <h3>Solde Simulé</h3>
+            <p>100.00 Pi</p>
+        </div>
+        <div class="stat-card">
+            <h3>Rendement (ROI)</h3>
+            <p>+ 12.5 %</p>
+        </div>
+    </section>
+
+    <main class="main-content">
+        <div class="offer-card">
+            <h2>Pool d'Investissement Alpha</h2>
+            <p>Participez à la simulation de notre premier fonds de liquidité décentralisé. Validez la transaction ci-dessous pour tester l'infrastructure du Pi SDK.</p>
+            
+            <!-- Ce bouton appelle votre fonction JavaScript -->
+            <button class="btn-payment" onclick="launchPiPayment()">
+                Faire un paiement Testnet (1 Pi)
+            </button>
+        </div>
+    </main>
+
+    <footer>
+        &copy; 2026 Gelase. Tous droits réservés.<br>
+        Cette application est une simulation de test sur le réseau Pi Testnet.
+    </footer>
 
     <script>
-        const Pi = window.Pi;
-        Pi.init({ version: "2.0", sandbox: true });
-
-        document.getElementById('pay-btn').addEventListener('click', async () => {
-            try {
-                const scopes = ['username', 'payments'];
-                
-                // Gestionnaire intelligent des blocs de paiement
-                function onIncompletePaymentFound(payment) {
-                    alert("Paiement suspendu détecté. Nettoyage en cours...");
-                    
-                    const hasTxid = payment.transaction && payment.transaction.txid;
-                    const endpoint = hasTxid ? '/api/complete' : '/api/cancel';
-                    const bodyData = hasTxid 
-                        ? { paymentId: payment.identifier, txid: payment.transaction.txid }
-                        : { paymentId: payment.identifier };
-
-                    fetch('https://invest-pi-gamma.vercel.app' + endpoint, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(bodyData)
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        alert("Le blocage a été résolu avec succès ! La page va s'actualiser.");
-                        window.location.reload();
-                    })
-                    .catch(err => alert("Erreur de nettoyage : " + err.message));
-                }
-
-                const auth = await Pi.authenticate(scopes, onIncompletePaymentFound);
-                alert("Connecté : " + auth.user.username);
-
-                const paymentData = {
-                    amount: 1.0,
-                    memo: "Test de paiement d'application Invest Pi",
-                    metadata: { app: "invest-pi" }
-                };
-
-                const callbacks = {
-                    onReadyForServerApproval: (paymentId) => {
-                        fetch('https://invest-pi-gamma.vercel.app/api/approve', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ paymentId: paymentId })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert("Paiement approuvé par le serveur !");
-                            } else {
-                                alert("Erreur d'approbation : " + JSON.stringify(data.error));
-                            }
-                        })
-                        .catch(error => alert("Erreur réseau backend : " + error.message));
-                    },
-                    onReadyForServerCompletion: (paymentId, txid) => {
-                        fetch('https://invest-pi-gamma.vercel.app/api/complete', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ paymentId: paymentId, txid: txid })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert("Transaction réussie et totalement finalisée !");
-                            } else {
-                                alert("Erreur lors de la complétion : " + JSON.stringify(data.error));
-                            }
-                        })
-                        .catch(error => alert("Erreur réseau complétion : " + error.message));
-                    },
-                    onCancel: (paymentId) => {
-                        alert("Paiement annulé.");
-                    },
-                    onError: (error, payment) => {
-                        alert("Erreur : " + error.message);
-                    }
-                };
-
-                await Pi.createPayment(paymentData, callbacks);
-
-            } catch (error) {
-                alert("Erreur : " + error.message);
-            }
-        });
+        // ======= EMPLACEMENT DE VOTRE CONFIGURATION PI SDK =======
+        
+        function launchPiPayment() {
+            console.log("Le bouton a été cliqué.");
+            
+            // COLLÉ ICI : Insérez votre bloc de code de paiement existant.
+            // Exemple : Pi.createPayment({ ... })
+        }
+        
+        // ========================================================
     </script>
 </body>
 </html>
