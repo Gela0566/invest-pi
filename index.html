@@ -1,15 +1,31 @@
 <script>
-    // Initialisation du SDK Pi
+    // 1. Initialisation du SDK Pi
     Pi.init({ version: "2.0", sandbox: true }); 
 
-    // Authentification automatique à l'ouverture
+    // Variables pour le compteur de solde vivant
+    let currentBalance = 100.0000;
+    const roiPercentage = 12.5; // Le taux affiché sur votre carte
+
+    // Fonction qui fait grimper le solde en direct (Simule un rendement constant)
+    function startLiveYield() {
+        const balanceElement = document.getElementById('live-balance');
+        if (balanceElement) {
+            setInterval(() => {
+                // Augmente le solde de 0.0001 Pi toutes les secondes
+                currentBalance += 0.0001;
+                // Met à jour l'affichage sur l'écran avec 4 décimales
+                balanceElement.innerText = currentBalance.toFixed(4) + " Pi";
+            }, 1000); // 1000 millisecondes = 1 seconde
+        }
+    }
+
+    // 2. Authentification automatique à l'ouverture
     async function authUser() {
         try {
             const scopes = ['username'];
             const authResult = await Pi.authenticate(scopes, onIncompletePaymentFound);
             
             if (authResult && authResult.user) {
-                // Met à jour dynamiquement le texte "Connexion en cours..."
                 document.getElementById('username-display').innerText = "Bienvenue " + authResult.user.username;
             }
         } catch (error) {
@@ -21,11 +37,13 @@
         console.log("Paiement incomplet trouvé :", payment);
     }
 
+    // Lance les fonctions dès que la DApp s'affiche dans le Pi Browser
     window.onload = function() {
         authUser();
+        startLiveYield(); // Déclenche le solde en temps réel
     };
 
-    // ACTION DU BOUTON : C'est ce code qui réactive votre bouton !
+    // 3. ACTION DU BOUTON (Réactivé)
     function launchPiPayment() {
         console.log("Lancement du paiement...");
         
@@ -36,7 +54,7 @@
         }, {
             onReadyForServerApproval: function(paymentId) {
                 console.log("Payment ID prêt pour approbation :", paymentId);
-                // Si vous n'avez pas de serveur backend pour le moment, le test s'arrête ici
+                // Étape 2 (Backend) : C'est ici que votre futur serveur validera la transaction
             },
             onReadyForServerCompletion: function(paymentId, txid) {
                 console.log("Paiement complété sur la blockchain ! TXID :", txid);
