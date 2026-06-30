@@ -7,36 +7,41 @@
     <style>
         :root {
             --pi-purple: #622181;
+            --pi-purple-light: #7b2c9f;
             --pi-gold: #fca311;
-            --bg-dark: #121212;
-            --card-bg: #1e1e1e;
+            --bg-dark: #0b0b0c;
+            --card-bg: rgba(30, 30, 34, 0.65);
+            --card-border: rgba(255, 255, 255, 0.06);
             --text-light: #ffffff;
-            --text-muted: #a0a0a0;
-            --success-green: #2ec4b6;
+            --text-muted: #9ca3af;
+            --success-green: #10b981;
         }
 
         body {
             margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at top right, rgba(98, 33, 129, 0.15), transparent 400px);
             color: var(--text-light);
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
 
         header {
             width: 100%;
-            max-width: 500px;
-            padding: 20px;
+            max-width: 480px;
+            padding: 25px 20px 15px 20px;
             text-align: center;
             box-sizing: border-box;
         }
 
         .logo-container {
-            font-size: 28px;
-            font-weight: bold;
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
             color: var(--text-light);
             display: flex;
             align-items: center;
@@ -45,102 +50,130 @@
         }
 
         .badge-testnet {
-            background-color: var(--pi-gold);
+            background: linear-gradient(135deg, var(--pi-gold), #f39c12);
             color: #000;
-            font-size: 12px;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-weight: bold;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            box-shadow: 0 2px 8px rgba(252, 163, 17, 0.2);
+        }
+
+        #username-display {
+            font-size: 13px;
+            font-weight: 600;
+            margin: 12px 0 0 0;
+            padding: 6px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 30px;
+            display: inline-block;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 12px;
             width: 100%;
-            max-width: 500px;
+            max-width: 480px;
             padding: 0 20px;
             box-sizing: border-box;
         }
 
         .stat-card {
-            background-color: var(--card-bg);
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid #2a2a2a;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 16px;
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
             text-align: center;
+            transition: transform 0.2s;
         }
 
         .stat-card h3 {
             margin: 0;
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-muted);
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .stat-card p {
-            margin: 5px 0 0 0;
+            margin: 6px 0 0 0;
             font-size: 18px;
-            font-weight: bold;
+            font-weight: 700;
             color: var(--pi-gold);
         }
 
         .main-content {
             width: 100%;
-            max-width: 500px;
-            padding: 20px;
+            max-width: 480px;
+            padding: 16px 20px;
             box-sizing: border-box;
         }
 
         .offer-card {
-            background: linear-gradient(145deg, #1e1e1e, #25182e);
-            border: 1px solid #3d1c52;
-            padding: 20px;
-            border-radius: 16px;
+            background: linear-gradient(145deg, rgba(30, 30, 34, 0.8), rgba(45, 24, 58, 0.5));
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(98, 33, 129, 0.25);
+            padding: 24px;
+            border-radius: 24px;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             margin-bottom: 20px;
         }
 
         .offer-card h2 {
             margin-top: 0;
             font-size: 20px;
+            font-weight: 700;
         }
 
         .offer-card p {
             color: var(--text-muted);
-            font-size: 14px;
-            line-height: 1.5;
+            font-size: 13px;
+            line-height: 1.6;
+            margin: 8px 0 20px 0;
         }
 
         .btn-payment {
-            background-color: var(--pi-purple);
+            background: linear-gradient(135deg, var(--pi-purple), var(--pi-purple-light));
             color: white;
             border: none;
-            padding: 14px 28px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 30px;
+            padding: 15px 24px;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 16px;
             cursor: pointer;
             width: 100%;
-            margin-top: 15px;
-            box-shadow: 0 4px 10px rgba(98, 33, 129, 0.3);
+            box-shadow: 0 4px 15px rgba(98, 33, 129, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .btn-payment:active {
+            transform: scale(0.98);
+            opacity: 0.9;
         }
 
         .history-card {
-            background-color: var(--card-bg);
-            border: 1px solid #2a2a2a;
-            border-radius: 16px;
-            padding: 15px;
-            text-align: left;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 20px;
         }
 
         .history-card h3 {
             margin-top: 0;
-            font-size: 16px;
+            font-size: 15px;
+            font-weight: 700;
             color: var(--text-light);
-            border-bottom: 1px solid #2a2a2a;
-            padding-bottom: 8px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .transaction-list {
@@ -153,17 +186,30 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #222;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
             font-size: 13px;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         footer {
             margin-top: auto;
-            padding: 20px;
+            padding: 25px 20px;
             font-size: 11px;
             color: var(--text-muted);
             text-align: center;
+            line-height: 1.5;
+            width: 100%;
+            box-sizing: border-box;
         }
     </style>
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
@@ -174,7 +220,7 @@
         <div class="logo-container">
             🚀 Invest Pi <span class="badge-testnet">Testnet</span>
         </div>
-        <p id="username-display" style="color: var(--pi-gold); font-size: 14px; font-weight: bold; margin: 10px 0 0 0;">
+        <p id="username-display" style="color: var(--pi-gold);">
             Initialisation du protocole Pi...
         </p>
     </header>
@@ -186,7 +232,7 @@
         </div>
         <div class="stat-card">
             <h3>Rendement (ROI)</h3>
-            <p>+ 12.5 %</p>
+            <p style="color: var(--success-green);">+ 12.5 %</p>
         </div>
     </section>
 
@@ -204,7 +250,7 @@
             <h3>Historique des Dépôts</h3>
             <ul class="transaction-list" id="tx-history">
                 <li class="transaction-item" id="no-tx">
-                    <span style="color: var(--text-muted);">Aucune transaction détectée sur cette session.</span>
+                    <span style="color: var(--text-muted); font-style: italic;">Aucune transaction détectée sur cette session.</span>
                 </li>
             </ul>
         </div>
@@ -212,14 +258,14 @@
 
     <footer>
         &copy; 2026 Gelase. Tous droits réservés.<br>
-        Application synchronisée pour l'écosystème Pi.
+        <span style="opacity: 0.6;">Application synchronisée pour l'écosystème Pi.</span>
     </footer>
 
     <script>
         let currentBalance = 100.0000;
         let isPiReady = false;
 
-        // FORCE l'URL absolue de ton API de validation Vercel pour éviter tout conflit d'origine (CORS) dans la Sandbox Gamma
+        // URL backend figée sur ton Vercel de production fonctionnel
         const BACKEND_URL = "https://invest-pi.vercel.app/api/pay";
 
         window.onload = function() {
@@ -239,6 +285,7 @@
                     authUser();
                 } catch (err) {
                     document.getElementById('username-display').innerText = "Erreur initialisation SDK";
+                    document.getElementById('username-display').style.color = "#ff4d4d";
                 }
             } else {
                 setTimeout(initPiSDK, 300);
@@ -250,10 +297,9 @@
                 const authResult = await Pi.authenticate(['username', 'payments'], onIncompletePaymentFound);
                 if (authResult && authResult.user) {
                     document.getElementById('username-display').innerText = "Fonds connecté : @" + authResult.user.username;
-                    document.getElementById('username-display').style.color = "#2ec4b6";
+                    document.getElementById('username-display').style.color = "var(--success-green)";
                 }
             } catch (error) {
-                // Affiche l'erreur système exacte retournée par l'écosystème Pi au lieu d'un message générique
                 document.getElementById('username-display').innerText = "Erreur d'authentification : " + (error.message || JSON.stringify(error));
                 document.getElementById('username-display').style.color = "#ff4d4d";
             }
@@ -275,12 +321,12 @@
 
             li.innerHTML = `
                 <div>
-                    <strong>Dépôt Pool Gelase</strong><br>
-                    <span style="color: var(--text-muted); font-size: 11px;">Aujourd'hui à ${timeStr}</span>
+                    <strong style="color: #fff;">Dépôt Pool Gelase</strong><br>
+                    <span style="color: var(--text-muted); font-size: 11px;">À ${timeStr}</span>
                 </div>
                 <div style="text-align: right;">
-                    <span style="color: var(--pi-gold); font-weight: bold;">-1.0000 Pi</span><br>
-                    <span style="color: var(--success-green); font-weight: bold;">Blockchain Confirmée</span>
+                    <span style="color: var(--pi-gold); font-weight: 700;">-1.0000 Pi</span><br>
+                    <span style="color: var(--success-green); font-size: 11px; font-weight: 600;">✓ Blockchain</span>
                 </div>
             `;
             historyList.insertBefore(li, historyList.firstChild);
