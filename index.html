@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -176,7 +175,7 @@
             🚀 Invest Pi <span class="badge-testnet">Testnet</span>
         </div>
         <p id="username-display" style="color: var(--pi-gold); font-size: 16px; font-weight: bold; margin: 10px 0 0 0;">
-            Fonds Gelase Démo
+            Initialisation...
         </p>
     </header>
 
@@ -221,7 +220,6 @@
         let isPiReady = false;
 
         window.onload = function() {
-            // Lancement instantané du compteur
             setInterval(() => {
                 currentBalance += 0.0001;
                 if(document.getElementById('live-balance')) {
@@ -229,31 +227,38 @@
                 }
             }, 1000); 
             
-            // Tentative d'initialisation du SDK
-            try {
-                if (typeof Pi !== 'undefined') {
-                    Pi.init({ version: "2.0", sandbox: true });
-                    isPiReady = true;
-                    document.getElementById('username-display').innerText = "Fonds Gelase Connecté ✅";
-                    authUser();
-                }
-            } catch (err) {
-                console.log("Mode Démo activé.");
-            }
+            setTimeout(initPiSDK, 500);
         };
 
+        function initPiSDK() {
+            if (typeof Pi !== 'undefined') {
+                try {
+                    Pi.init({ version: "2.0", sandbox: true });
+                    isPiReady = true;
+                    authUser();
+                } catch (err) {
+                    document.getElementById('username-display').innerText = "Mode Sandbox Actif";
+                }
+            } else {
+                setTimeout(initPiSDK, 500);
+            }
+        }
+
+        // LA CORRECTION EST ICI : Ajout du scope 'payments' obligatoire
         async function authUser() {
             try {
-                const scopes = ['username'];
+                const scopes = ['username', 'payments']; 
                 const authResult = await Pi.authenticate(scopes, onIncompletePaymentFound);
                 if (authResult && authResult.user) {
                     document.getElementById('username-display').innerText = "Bienvenue @" + authResult.user.username;
                 }
-            } catch (e) { }
+            } catch (error) {
+                document.getElementById('username-display').innerText = "Mode Sandbox (Aperçu)";
+            }
         }
 
         function onIncompletePaymentFound(payment) {
-            console.log("Incomplet:", payment);
+            console.log("Paiement incomplet trouvé :", payment);
         }
 
         function addTransactionToHistory(amount, memo) {
@@ -279,37 +284,35 @@
             historyList.insertBefore(li, historyList.firstChild);
         }
 
-        // LA SOLUTION DOUBLE : Si le vrai SDK bloque, il simule le paiement pour débloquer ton bouton !
         function launchPiPayment() {
-            if (isPiReady && typeof Pi !== 'undefined' && typeof Pi.createPayment === 'function') {
-                // Mode Réel (Si l'URL est validée dans le Developer Portal)
-                try {
-                    Pi.createPayment({
-                        amount: 1.0,
-                        memo: "Dépôt Fonds Gelase",
-                        metadata: { fund: "Gelase Test" }
-                    }, {
-                        onReadyForServerApproval: function(paymentId) { },
-                        onReadyForServerCompletion: function(paymentId, txid) {
-                            addTransactionToHistory(1.0, "Dépôt Fonds Gelase");
-                            currentBalance += 1.0;
-                        },
-                        onCancel: function(paymentId) { },
-                        onError: function(error, payment) { }
-                    });
-                } catch (err) {
-                    runSimulationFallback();
-                }
-            } else {
-                // Mode Fallback / Simulation (Évite le bouton mort !)
-                runSimulationFallback();
+            if (!isPiReady || typeof Pi === 'undefined') {
+                alert("Le SDK n'est pas prêt.");
+                return;
             }
-        }
 
-        function runSimulationFallback() {
-            // Ajoute directement la ligne à l'historique au clic !
-            addTransactionToHistory(1.0, "Dépôt Fonds Gelase (Simulé)");
-            currentBalance += 1.0;
+            try {
+                Pi.createPayment({
+                    amount: 1.0,
+                    memo: "Dépôt Fonds Gelase",
+                    metadata: { fund: "Gelase Test" }
+                }, {
+                    onReadyForServerApproval: function(paymentId) {
+                        console.log("Approbation serveur pour ID :", paymentId);
+                    },
+                    onReadyForServerCompletion: function(paymentId, txid) {
+                        addTransactionToHistory(1.0, "Dépôt Fonds Gelase");
+                        currentBalance -= 1.0;
+                    },
+                    onCancel: function(paymentId) {
+                        console.log("Paiement annulé");
+                    },
+                    onError: function(error, payment) {
+                        console.error("Erreur de paiement :", error);
+                    }
+                });
+            } catch (err) {
+                alert("Erreur d'exécution : " + err.message);
+            }
         }
     </script>
 </body>
